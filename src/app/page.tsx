@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, CheckCircle2, CircleHelp, Cog, ShieldCheck, Sparkles, Wrench, Zap } from "lucide-react";
+import { ArrowLeft, CheckCircle2, CircleHelp, Cog, Sparkles } from "lucide-react";
 import { categories, products } from "@/lib/catalog";
 import { Footer, Header, ProductGrid, TrustStrip, VehicleFinder } from "@/components/storefront";
 
