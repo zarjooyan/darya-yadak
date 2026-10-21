@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Vazirmatn } from "next/font/google";
 import "./globals.css";
+
+const vazirmatn = Vazirmatn({
+  subsets: ["arabic", "latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-vazirmatn",
+  display: "swap",
+});
 
 const siteUrl = "https://zarjooyan.github.io/darya-yadak";
 
@@ -60,7 +68,7 @@ const websiteSchema = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fa" dir="rtl">
-      <body>
+      <body className={vazirmatn.variable}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         {children}
