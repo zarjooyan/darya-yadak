@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowLeft, BadgeCheck, CarFront, Check, ChevronDown, Headphones, Heart, Menu, PackageCheck, Search, ShieldCheck, ShoppingBag, Truck, Wrench, X } from "lucide-react";
+import { ArrowLeft, CarFront, Check, ChevronDown, Headphones, Heart, Menu, PackageCheck, Search, ShieldCheck, ShoppingBag, Truck, Wrench, X } from "lucide-react";
 import { categories, formatPrice, products, type Product } from "@/lib/catalog";
 
 export function Header() {
