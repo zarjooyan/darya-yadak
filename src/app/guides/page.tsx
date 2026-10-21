@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, BadgeCheck, CarFront, CheckCircle2, CircleHelp, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CarFront, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Footer, Header } from "@/components/storefront";
 
 export const metadata: Metadata = {
