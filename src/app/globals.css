@@ -611,3 +611,52 @@ img { max-width: 100%; }
   .brand-name { font-size:20px; }
   .brand-caption { font-size:9px; }
 }
+
+/* Liquid-glass phone consultation section */
+.contact-cta-section { padding-top: 30px; padding-bottom: 54px; }
+.contact-glass-card {
+  position:relative; isolation:isolate; overflow:hidden; display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(220px,.65fr); align-items:center;
+  gap:28px; padding:clamp(26px,5vw,58px); border:1px solid rgba(117,177,224,.38);
+  border-radius:30px; background:linear-gradient(125deg,rgba(255,255,255,.78),rgba(224,241,255,.48));
+  box-shadow:0 24px 70px rgba(17,65,104,.12),inset 0 1px 0 rgba(255,255,255,.86);
+  -webkit-backdrop-filter:blur(26px) saturate(155%); backdrop-filter:blur(26px) saturate(155%);
+}
+.contact-glass-card:before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(ellipse at 88% 18%,rgba(22,137,232,.16),transparent 40%),linear-gradient(135deg,rgba(255,255,255,.5),transparent 55%); }
+.contact-glass-copy { position:relative; z-index:2; }
+.contact-glass-kicker { display:inline-flex; align-items:center; gap:8px; color:var(--brand-primary); font-size:13px; font-weight:800; margin-bottom:12px; }
+.contact-glass-copy h2 { color:var(--text-primary); font-size:clamp(25px,3.3vw,40px); line-height:1.65; letter-spacing:-.7px; margin:0 0 8px; font-weight:900; }
+.contact-glass-copy h2 span { color:var(--brand-primary); }
+.contact-glass-copy p { color:var(--text-secondary); font-size:15px; line-height:2.1; max-width:610px; margin:0 0 18px; }
+.contact-phone-number { display:inline-block; font-size:clamp(25px,3vw,34px); font-weight:900; letter-spacing:1px; color:var(--text-primary); text-decoration:none; padding:5px 0; font-variant-numeric:tabular-nums; }
+.contact-phone-number:hover { color:var(--brand-primary); }
+.contact-glass-actions { display:flex; flex-wrap:wrap; align-items:center; gap:15px; margin-top:17px; }
+.contact-call-button { display:inline-flex; align-items:center; justify-content:center; gap:10px; border-radius:15px; padding:14px 20px; color:#fff; text-decoration:none; font-weight:800; background:linear-gradient(135deg,#1689e8,#086bc5); box-shadow:0 10px 26px rgba(8,107,197,.25); transition:transform .2s ease,box-shadow .2s ease; }
+.contact-call-button:hover { transform:translateY(-2px); box-shadow:0 14px 30px rgba(8,107,197,.32); }
+.contact-glass-note { display:inline-flex; align-items:center; gap:7px; color:var(--text-secondary); font-size:12px; }
+.contact-glass-art { position:relative; display:grid; place-items:center; min-height:245px; }
+.contact-glass-ring { display:grid; place-items:center; width:clamp(145px,18vw,220px); aspect-ratio:1; color:var(--brand-primary); border:1px solid rgba(89,165,224,.45); border-radius:44% 56% 60% 40% / 45% 43% 57% 55%; background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(177,220,255,.22)); box-shadow:inset 0 2px 5px rgba(255,255,255,.9),0 25px 65px rgba(18,95,157,.15); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); transform:rotate(-8deg); }
+.contact-glass-ring svg { transform:rotate(8deg); }
+.contact-glass-chip { position:absolute; bottom:20px; right:0; padding:12px 17px; border:1px solid rgba(255,255,255,.68); border-radius:15px; background:rgba(255,255,255,.65); color:var(--text-primary); font-size:12px; font-weight:800; box-shadow:0 10px 28px rgba(20,60,95,.12); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); }
+.contact-glass-dot { position:absolute; top:20px; right:24%; width:14px; height:14px; border-radius:50%; background:#1689e8; box-shadow:0 0 0 8px rgba(22,137,232,.1),0 0 30px rgba(22,137,232,.45); }
+.footer-phone-link { display:inline-flex; align-items:center; gap:8px; color:var(--brand-primary) !important; font-weight:800; }
+:root[data-theme="dark"] .contact-glass-card { background:linear-gradient(125deg,rgba(17,37,56,.82),rgba(10,25,40,.76)); border-color:rgba(76,153,214,.35); box-shadow:0 24px 70px rgba(0,0,0,.24),inset 0 1px 0 rgba(190,220,245,.09); }
+:root[data-theme="dark"] .contact-glass-card:before { background:radial-gradient(ellipse at 88% 18%,rgba(22,137,232,.2),transparent 42%),linear-gradient(135deg,rgba(255,255,255,.04),transparent 55%); }
+:root[data-theme="dark"] .contact-glass-copy h2 { color:#f1f6fb; }
+:root[data-theme="dark"] .contact-glass-copy h2 span, :root[data-theme="dark"] .contact-glass-kicker { color:#38a7ff; }
+:root[data-theme="dark"] .contact-glass-copy p, :root[data-theme="dark"] .contact-glass-note { color:#c3d0df; }
+:root[data-theme="dark"] .contact-phone-number { color:#f1f6fb; }
+:root[data-theme="dark"] .contact-glass-ring { background:linear-gradient(145deg,rgba(30,67,97,.62),rgba(7,17,30,.58)); border-color:rgba(74,155,222,.36); box-shadow:inset 0 1px 0 rgba(213,236,255,.1),0 25px 65px rgba(0,0,0,.25); }
+:root[data-theme="dark"] .contact-glass-chip { background:rgba(12,29,45,.74); border-color:rgba(151,195,228,.22); color:#f1f6fb; }
+@media (max-width:760px) {
+ .contact-glass-card { grid-template-columns:1fr; gap:8px; padding:26px 22px; border-radius:24px; }
+ .contact-glass-art { grid-row:1; min-height:150px; }
+ .contact-glass-ring { width:130px; }
+ .contact-glass-chip { right:8%; bottom:2px; }
+ .contact-glass-dot { top:4px; right:35%; }
+ .contact-glass-copy h2 { font-size:27px; }
+ .contact-glass-actions { align-items:stretch; flex-direction:column; }
+ .contact-call-button { width:100%; }
+ .contact-glass-note { justify-content:center; }
+}
+@media (prefers-reduced-motion:reduce) { .contact-call-button { transition:none; } .contact-call-button:hover { transform:none; } }
