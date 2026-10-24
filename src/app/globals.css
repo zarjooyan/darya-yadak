@@ -514,3 +514,42 @@ img { max-width: 100%; }
   .brand-logo { width:148px; max-height:48px; }
   .footer-brand-logo { width:178px; }
 }
+
+/* Contrast fixes for dark mode: keep headings readable and avoid light hero gradients. */
+.brand-logo-dark { display:none; }
+:root[data-theme="dark"] .brand-logo-light { display:none; }
+:root[data-theme="dark"] .brand-logo-dark { display:block; }
+:root[data-theme="dark"] .hero {
+  background:
+    radial-gradient(ellipse at 78% 0%, var(--palette-10283c) 0, transparent 42%),
+    linear-gradient(180deg, var(--page-bg), var(--page-bg));
+}
+:root[data-theme="dark"] .hero h1,
+:root[data-theme="dark"] .section-heading,
+:root[data-theme="dark"] .section-title,
+:root[data-theme="dark"] .page-title,
+:root[data-theme="dark"] .footer-heading,
+:root[data-theme="dark"] .content-heading,
+:root[data-theme="dark"] .guide-title,
+:root[data-theme="dark"] .product-title,
+:root[data-theme="dark"] .category-title {
+  color: var(--text-primary);
+}
+:root[data-theme="dark"] .hero h1 span,
+:root[data-theme="dark"] .section-heading span,
+:root[data-theme="dark"] .section-title span {
+  color: var(--brand-secondary);
+}
+:root[data-theme="dark"] .hero p,
+:root[data-theme="dark"] .section-description,
+:root[data-theme="dark"] .muted,
+:root[data-theme="dark"] .product-meta,
+:root[data-theme="dark"] .category-description {
+  color: var(--text-secondary);
+}
+:root[data-theme="dark"] .hero h1,
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3 {
+  text-shadow: none;
+}
