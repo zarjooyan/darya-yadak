@@ -14,9 +14,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = product.title + " | قیمت و مشخصات";
   return {
     title,
-    description: "مشاهده مشخصات " + product.title + "، برند " + product.brand + "، کاربرد " + product.fitment + " و نکات انتخاب قطعه در دریا یدک.",
+    description: "مشاهده مشخصات " + product.title + "، برند " + product.brand + "، کاربرد " + product.fitment + " و نکات انتخاب قطعه در دریا پارت.",
     alternates: { canonical: "/product/" + product.slug + "/" },
-    openGraph: { title: title + " - دریا یدک", description: "مشخصات، کاربرد و قیمت نمونه " + product.title, images: [{ url: product.image, alt: product.title }] },
+    openGraph: { title: title + " - دریا پارت", description: "مشخصات، کاربرد و قیمت نمونه " + product.title, images: [{ url: product.image, alt: product.title }] },
   };
 }
 
