@@ -406,3 +406,29 @@ img { max-width: 100%; }
 }
 
 :root[data-theme="light"] { color-scheme: light; }
+
+
+/* Darya Part brand mark and theme control */
+.brand-mark { position: relative; overflow: hidden; }
+.brand-gear { position: absolute; inset-inline-start: 2px; top: 1px; opacity: .95; }
+.brand-car { position: absolute; inset-inline-end: 2px; bottom: 4px; color: var(--palette-ffffff); filter: drop-shadow(0 1px 2px rgba(0,0,0,.18)); }
+.theme-toggle { flex-shrink: 0; }
+:root[data-theme="dark"] body { background: var(--page-bg); color: var(--text-primary); }
+:root[data-theme="dark"] .site-header { background: rgba(7,17,30,.94); }
+:root[data-theme="dark"] .hero { background: radial-gradient(ellipse at 78% 0%, #10283c 0, transparent 42%), linear-gradient(180deg,#0b1724,#07111e); }
+:root[data-theme="dark"] .trust-row,
+:root[data-theme="dark"] .category-card,
+:root[data-theme="dark"] .product-card,
+:root[data-theme="dark"] .guide-card,
+:root[data-theme="dark"] .faq-item { background: var(--surface); border-color: var(--border-default); }
+:root[data-theme="dark"] .vehicle-panel { background: linear-gradient(135deg,#102338,#0d1c2b); border-color: var(--border-default); }
+:root[data-theme="dark"] .field-select,
+:root[data-theme="dark"] .action-icon,
+:root[data-theme="dark"] .btn-light { background: var(--surface); color: var(--text-primary); border-color: var(--border-default); }
+:root[data-theme="dark"] .search-box { background: var(--surface-muted); border-color: var(--border-default); }
+:root[data-theme="dark"] .product-photo-wrap,
+:root[data-theme="dark"] .product-detail-photo { background: linear-gradient(135deg,#132436,#172b3e); }
+:root[data-theme="dark"] .product-photo { mix-blend-mode: normal; }
+:root[data-theme="dark"] .product-price-row { border-color: var(--border-default); }
+:root[data-theme="dark"] .search-suggestions { background: var(--surface); border-color: var(--border-default); }
+:root[data-theme="dark"] .product-detail-price { background: #102338; border-color: var(--border-default); }
