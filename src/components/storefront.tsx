@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CarFront, Check, ChevronDown, Headphones, Heart, Menu, Moon, PackageCheck, Search, ShieldCheck, ShoppingBag, Sun, Truck, Wrench, X } from "lucide-react";
+import { ArrowLeft, CarFront, Check, ChevronDown, Cog, Headphones, Heart, Menu, Moon, PackageCheck, Search, ShieldCheck, ShoppingBag, Sun, Truck, Wrench, X } from "lucide-react";
 import { categories, formatPrice, products, type Product } from "@/lib/catalog";
 
 export function Header() {
@@ -27,7 +27,7 @@ export function Header() {
       <div className="top-strip"><div className="container top-strip-inner"><span>قطعه درست، انتخاب مطمئن؛ <strong>همراه خودروی شما</strong></span><div className="top-strip-items"><span>راهنمای انتخاب قطعه</span><span>پشتیبانی تخصصی</span><span>پیگیری سفارش</span></div></div></div>
       <header className="site-header">
         <div className="container header-main">
-          <Link href="/" className="brand" aria-label="دریا پارت، صفحه اصلی"><span className="brand-mark"><Wrench size={23}/></span><span><span className="brand-name">دریا پارت</span><span className="brand-caption">همراه مطمئن خودروی شما</span></span></Link>
+          <Link href="/" className="brand" aria-label="دریا پارت، صفحه اصلی"><span className="brand-mark"><Cog className="brand-gear" size={29}/><CarFront className="brand-car" size={20}/></span><span><span className="brand-name">دریا پارت</span><span className="brand-caption">همراه مطمئن خودروی شما</span></span></Link>
           <div className="search-wrap">
             <form className="search-box" action={process.env.NODE_ENV === "production" ? "/darya-yadak/search/" : "/search/"} role="search"><Search size={19}/><input aria-label="جستجوی قطعه" name="q" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="نام قطعه، کد فنی یا مدل خودرو را جستجو کنید..." autoComplete="off"/><button type="submit" aria-label="جستجو" className="text-link"><ArrowLeft size={17}/></button></form>
             {results.length > 0 && <div className="search-suggestions">{results.map((product) => <Link key={product.id} href={"/product/"+product.slug+"/"} className="suggestion-item"><Search size={15}/><span>{product.title}</span><small>{formatPrice(product.price)}</small></Link>)}</div>}
