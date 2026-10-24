@@ -15,23 +15,23 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "دریا پارت | فروشگاه تخصصی لوازم یدکی خودرو",
-    template: "%s | دریا یدک",
+    template: "%s | دریا پارت",
   },
-  description: "خرید و بررسی لوازم یدکی خودرو با راهنمای انتخاب قطعه، مشخصات فنی و دسته‌بندی تخصصی. قطعه مناسب خودروی خود را در دریا یدک پیدا کنید.",
-  applicationName: "دریا یدک",
+  description: "خرید و بررسی لوازم یدکی خودرو با راهنمای انتخاب قطعه، مشخصات فنی و دسته‌بندی تخصصی. قطعه مناسب خودروی خود را در دریا پارت پیدا کنید.",
+  applicationName: "دریا پارت",
   keywords: ["لوازم یدکی خودرو", "خرید قطعات خودرو", "قطعات پژو ۲۰۶", "قطعات پژو ۲۰۷", "فیلتر روغن", "قطعات موتور"],
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "fa_IR",
     url: siteUrl,
-    siteName: "دریا یدک",
-    title: "دریا یدک | فروشگاه تخصصی لوازم یدکی خودرو",
+    siteName: "دریا پارت",
+    title: "دریا پارت | فروشگاه تخصصی لوازم یدکی خودرو",
     description: "قطعه مناسب خودروی خود را ساده‌تر پیدا کنید.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "دریا یدک | فروشگاه تخصصی لوازم یدکی خودرو",
+    title: "دریا پارت | فروشگاه تخصصی لوازم یدکی خودرو",
     description: "خرید و بررسی لوازم یدکی خودرو با راهنمای انتخاب قطعه.",
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#101923",
-  colorScheme: "light",
+  colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -47,7 +47,7 @@ export const viewport: Viewport = {
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "دریا یدک",
+  name: "دریا پارت",
   url: siteUrl,
   description: "فروشگاه تخصصی لوازم یدکی خودرو",
 };
@@ -55,7 +55,7 @@ const organizationSchema = {
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "دریا یدک",
+  name: "دریا پارت",
   url: siteUrl,
   inLanguage: "fa-IR",
   potentialAction: {
