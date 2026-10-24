@@ -13,9 +13,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!category) return { title: "دسته‌بندی پیدا نشد" };
   return {
     title: "خرید " + category.title,
-    description: category.description + "؛ مشاهده محصولات مرتبط، مشخصات و راهنمای انتخاب قطعه در دریا یدک.",
+    description: category.description + "؛ مشاهده محصولات مرتبط، مشخصات و راهنمای انتخاب قطعه در دریا پارت.",
     alternates: { canonical: "/category/" + category.slug + "/" },
-    openGraph: { title: "خرید " + category.title + " | دریا یدک", description: category.description, type: "website" },
+    openGraph: { title: "خرید " + category.title + " | دریا پارت", description: category.description, type: "website" },
   };
 }
 
