@@ -69,9 +69,9 @@
   --palette-526577: #526577;
   --page-bg: var(--palette-ffffff);
   --surface: var(--palette-ffffff);
-  --surface-muted: var(--palette-f5f8fb);
+  --surface-muted: var(--palette-192634);
   --text-primary: var(--palette-101923);
-  --text-secondary: var(--palette-647487);
+  --text-secondary: var(--palette-b4c4d6);
   --border-default: var(--palette-e3eaf1);
   --brand-primary: var(--palette-086bc5);
   --brand-secondary: var(--palette-1689e8);
@@ -337,7 +337,7 @@ img { max-width: 100%; }
 
 
 :root[data-theme="dark"] {
-  --palette-f8fafc: #0d1c2b;
+  --palette-f8fafc: #f1f6fb;
   --palette-0f9f78: #34d399;
   --palette-ef4444: #f87171;
   --palette-34d399: #34d399;
@@ -553,3 +553,42 @@ img { max-width: 100%; }
 :root[data-theme="dark"] h3 {
   text-shadow: none;
 }
+
+/* Final dark-theme contrast overrides */
+:root[data-theme="dark"] {
+  --text-primary: #f1f6fb;
+  --text-secondary: #b4c4d6;
+  --surface: #0d1c2b;
+  --surface-muted: #132436;
+  --border-default: #2b4054;
+  --brand-primary: #1689e8;
+  --brand-secondary: #60b5ff;
+}
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] main,
+:root[data-theme="dark"] .site-main { color: var(--text-primary); }
+:root[data-theme="dark"] .hero h1,
+:root[data-theme="dark"] .hero h1 span,
+:root[data-theme="dark"] .section-heading h2,
+:root[data-theme="dark"] .section-heading h2 span,
+:root[data-theme="dark"] .page-heading,
+:root[data-theme="dark"] .page-title,
+:root[data-theme="dark"] .content-title,
+:root[data-theme="dark"] .footer-heading { color: var(--text-primary) !important; }
+:root[data-theme="dark"] .hero h1 span,
+:root[data-theme="dark"] .section-heading h2 span { color: var(--brand-secondary) !important; }
+:root[data-theme="dark"] .hero p,
+:root[data-theme="dark"] .section-heading p,
+:root[data-theme="dark"] .section-description,
+:root[data-theme="dark"] .product-meta,
+:root[data-theme="dark"] .category-description { color: var(--text-secondary) !important; }
+:root[data-theme="dark"] .hero {
+  background: radial-gradient(ellipse at 78% 0%, #10283c 0, transparent 42%), linear-gradient(180deg, #07111e, #07111e) !important;
+}
+.brand { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.brand-logo { display:block; width:clamp(160px, 17vw, 205px); height:auto; max-height:64px; object-fit:contain; }
+.brand-logo-light, .brand-logo-dark { flex-shrink:0; }
+:root[data-theme="dark"] .brand-logo-light { display:none !important; }
+:root[data-theme="dark"] .brand-logo-dark { display:block !important; }
+:root:not([data-theme="dark"]) .brand-logo-light { display:block !important; }
+:root:not([data-theme="dark"]) .brand-logo-dark { display:none !important; }
