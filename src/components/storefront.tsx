@@ -44,6 +44,20 @@ export function Footer() {
   return <footer className="site-footer"><div className="container"><div className="footer-grid"><div className="footer-brand"><Link href="/" className="brand"><img className="brand-symbol footer-brand-symbol" src={process.env.NODE_ENV === "production" ? "/darya-yadak/darya-part-mark.svg" : "/darya-part-mark.svg"} alt="" aria-hidden="true" /><span className="brand-wordmark"><span className="brand-name"><span>دریا</span> <strong>پارت</strong></span><span className="brand-caption">قطعات یدکی خودرو</span></span></Link><p>قطعه مناسب، اطلاعات شفاف و انتخاب آگاهانه؛ دریا پارت تجربه‌ای ساده‌تر برای پیدا کردن لوازم یدکی خودرو می‌سازد. اطلاعات این نسخه نمایشی است.</p></div><div><h2 className="footer-heading">دسترسی سریع</h2><div className="footer-links"><Link href="/categories/">همه دسته‌بندی‌ها</Link><Link href="/category/engine/">قطعات موتور</Link><Link href="/category/body/">قطعات بدنه</Link><Link href="/category/electrical/">قطعات برقی</Link></div></div><div><h2 className="footer-heading">راهنمای مشتریان</h2><div className="footer-links"><Link href="/guides/">راهنمای خرید قطعه</Link><Link href="/guides/#fitment">بررسی سازگاری خودرو</Link><Link href="/guides/#authenticity">تشخیص قطعه اصلی</Link><Link href="/contact/">پرسش‌های متداول</Link></div></div><div><h2 className="footer-heading">ارتباط با ما</h2><div className="footer-links"><Link href="/contact/">تماس و پشتیبانی</Link><a href="tel:+989120148396" dir="ltr" className="footer-phone-link"><PhoneCall size={15}/> ۰۹۱۲۰۱۴۸۳۹۶</a><Link href="/contact/#about">درباره دریا پارت</Link><Link href="/sitemap.xml">نقشه سایت</Link><Link href="https://github.com/zarjooyan/darya-yadak">مخزن پروژه در GitHub</Link></div></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} دریا پارت — تمامی حقوق محفوظ است.</span><span>قیمت‌ها و محصولات این نسخه صرفاً نمونه هستند.</span></div></div></footer>;
 }
 
+
+export function FloatingContactBar() {
+  return (
+    <aside className="floating-contact" aria-label="تماس با دریا پارت">
+      <div className="floating-contact-message">
+        <span className="floating-contact-icon"><PhoneCall size={19}/></span>
+        <span className="floating-contact-copy"><strong>قیمت و موجودی رو بپرس</strong><small>پاسخ‌گویی مستقیم دریا پارت</small></span>
+      </div>
+      <a className="floating-contact-number" href="tel:+989120148396" dir="ltr">۰۹۱۲۰۱۴۸۳۹۶</a>
+      <a className="floating-contact-button" href="tel:+989120148396"><PhoneCall size={17}/><span>تماس فوری</span><ArrowLeft size={15}/></a>
+    </aside>
+  );
+}
+
 export function ProductCard({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
   return <article className="product-card"><Link href={"/product/"+product.slug+"/"} aria-label={product.title}><div className="product-photo-wrap">{product.badge && <span className="product-badge">{product.badge}</span>}<img className="product-photo" src={product.image} alt={product.title} loading="lazy"/></div></Link><div className="product-body"><span className="product-brand">{product.brand}</span><Link href={"/product/"+product.slug+"/"} className="product-title">{product.title}</Link><div className="product-fitment"><CarFront size={14}/>{product.fitment}</div><div className="product-rating">★ {product.rating} <span>({product.reviews} دیدگاه نمونه)</span></div><div className="product-price-row"><div className="product-price">{formatPrice(product.price)}{product.oldPrice && <span className="product-old-price">{formatPrice(product.oldPrice)}</span>}</div><button className="add-cart" aria-label={added ? "به لیست علاقه‌مندی اضافه شد" : "افزودن به لیست"} onClick={() => setAdded(!added)} title={added ? "ذخیره شد" : "ذخیره محصول"}>{added ? <Check size={17}/> : <Heart size={17}/>}</button></div></div></article>;
