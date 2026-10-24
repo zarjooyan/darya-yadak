@@ -592,3 +592,22 @@ img { max-width: 100%; }
 :root[data-theme="dark"] .brand-logo-dark { display:block !important; }
 :root:not([data-theme="dark"]) .brand-logo-light { display:block !important; }
 :root:not([data-theme="dark"]) .brand-logo-dark { display:none !important; }
+
+/* Accessible text-based wordmark paired with the Darya Part symbol */
+.brand { display:flex; align-items:center; gap:9px; min-width:max-content; text-decoration:none; }
+.brand-symbol { display:block; width:52px; height:48px; object-fit:contain; flex-shrink:0; }
+.brand-wordmark { display:flex; flex-direction:column; gap:0; line-height:1.35; }
+.brand-name { color:var(--text-primary); font-size:24px; font-weight:900; letter-spacing:-.6px; white-space:nowrap; }
+.brand-name strong { color:var(--brand-primary); font-weight:900; }
+.brand-caption { color:var(--text-secondary); font-size:10px; font-weight:600; white-space:nowrap; }
+.site-header .brand-name { color:var(--text-primary); }
+:root[data-theme="dark"] .site-header .brand-name { color:#f1f6fb !important; }
+:root[data-theme="dark"] .site-header .brand-caption { color:#b4c4d6 !important; }
+.footer-brand .brand-symbol { width:58px; height:54px; }
+.footer-brand .brand-name { font-size:25px; }
+.footer-brand .brand-caption { font-size:11px; }
+@media (max-width: 680px) {
+  .brand-symbol { width:42px; height:40px; }
+  .brand-name { font-size:20px; }
+  .brand-caption { font-size:9px; }
+}
