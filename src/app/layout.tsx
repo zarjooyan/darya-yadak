@@ -14,7 +14,7 @@ const siteUrl = "https://zarjooyan.github.io/darya-yadak";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "دریا یدک | فروشگاه تخصصی لوازم یدکی خودرو",
+    default: "دریا پارت | فروشگاه تخصصی لوازم یدکی خودرو",
     template: "%s | دریا یدک",
   },
   description: "خرید و بررسی لوازم یدکی خودرو با راهنمای انتخاب قطعه، مشخصات فنی و دسته‌بندی تخصصی. قطعه مناسب خودروی خود را در دریا یدک پیدا کنید.",
@@ -67,8 +67,9 @@ const websiteSchema = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fa" dir="rtl">
+    <html lang="fa" dir="rtl" data-theme="light">
       <body className={vazirmatn.variable}>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem("darya-part-theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t;}catch(e){}})();` }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         {children}
