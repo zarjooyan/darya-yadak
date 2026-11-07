@@ -68,7 +68,6 @@ export default function ProductAdmin() {
   const [items, setItems] = useState<AdminProduct[]>([]);
   const [active, setActive] = useState<AdminProduct | null>(null);
   const [query, setQuery] = useState("");
-  const [editorReady, setEditorReady] = useState(false);
 
   useEffect(() => {
     const savedPin = localStorage.getItem("darya-part-admin-pin");
@@ -186,15 +185,18 @@ export default function ProductAdmin() {
           </div>
           <label className="admin-editor-label">محتوای کامل محصول</label>
           {!process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY && <p className="admin-license-note">برای فعال‌سازی CKEditor، کلید لایسنس را در NEXT_PUBLIC_CKEDITOR_LICENSE_KEY در فایل .env.local قرار بده. مجوز GPL فقط در صورت سازگاری مجوز کل پروژه قابل استفاده است.</p>}
-          <div className="admin-ckeditor" dir="rtl">
-            <CKEditor
-              editor={ClassicEditor}
-              config={editorConfig}
-              data={active.content}
-              onReady={() => setEditorReady(true)}
-              onChange={(_, editor) => setActive({ ...active, content: editor.getData() })}
-            />
-          </div>
+          {process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY ? (
+            <div className="admin-ckeditor" dir="rtl">
+              <CKEditor
+                editor={ClassicEditor}
+                config={editorConfig}
+                data={active.content}
+                onChange={(_, editor) => setActive({ ...active, content: editor.getData() })}
+              />
+            </div>
+          ) : (
+            <p className="admin-license-note">برای فعال‌سازی CKEditor، کلید لایسنس معتبر را در متغیر NEXT_PUBLIC_CKEDITOR_LICENSE_KEY داخل فایل .env.local قرار بده. برای پروژه خصوصی، از لایسنس تجاری استفاده کن؛ مقدار GPL فقط برای پروژه‌ای با مجوز سازگار GPL مناسب است.</p>
+          )}
           <div className="admin-form-footer"><button onClick={save}>ذخیره محصول</button><button className="admin-quiet" onClick={() => setActive(null)}>انصراف</button></div>
         </section>
       ) : (
