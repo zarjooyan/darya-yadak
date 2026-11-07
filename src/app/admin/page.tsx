@@ -1,5 +1,6 @@
-import "./admin.css";
 "use client";
+
+import "./admin.css";
 
 import { useEffect, useState } from "react";
 import ProductAdmin from "@/components/admin/product-admin";
