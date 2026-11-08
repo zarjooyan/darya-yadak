@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bell, BellOff, LoaderCircle } from "lucide-react";
 
 const API_URL = "http://localhost:3031";
@@ -17,6 +17,14 @@ export default function PushNotifications() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    void navigator.serviceWorker.getRegistration().then(async (registration) => {
+      const subscription = await registration?.pushManager.getSubscription();
+      setEnabled(Boolean(subscription));
+    });
+  }, []);
 
   const toggleSubscription = async () => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
