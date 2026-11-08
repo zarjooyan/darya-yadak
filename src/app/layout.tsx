@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   },
   description: "خرید و بررسی لوازم یدکی خودرو با راهنمای انتخاب قطعه، مشخصات فنی و دسته‌بندی تخصصی. قطعه مناسب خودروی خود را در دریا پارت پیدا کنید.",
   applicationName: "دریا پارت",
+  manifest: process.env.NODE_ENV === "production" ? "/darya-yadak/manifest.webmanifest" : "/manifest.webmanifest",
+  icons: { icon: process.env.NODE_ENV === "production" ? "/darya-yadak/favicon.svg" : "/favicon.svg" },
   keywords: ["لوازم یدکی خودرو", "خرید قطعات خودرو", "قطعات پژو ۲۰۶", "قطعات پژو ۲۰۷", "فیلتر روغن", "قطعات موتور"],
   alternates: { canonical: "/" },
   openGraph: {
@@ -39,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#101923",
+  themeColor: "#0B1220",
   colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
