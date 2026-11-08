@@ -34,7 +34,7 @@ Next.js با `output: "export"` فایل‌های استاتیک را در پو�
 - پنل مدیریت محلی با نقش Admin
 - مدیریت دسته‌بندی‌ها، برندها و فهرست خودروهای پیشنهادی
 - ذخیره مستقیم محصولات و آپلود تصاویر روی فایل‌های پروژه
-- عنوان و توضیحات متا، canonical، Open Graph و metadata زبان فارسی
+- عنوان و توضیحات متای قابل تنظیم برای هر محصول، canonical، Open Graph و metadata زبان فارسی
 - Schema برای Organization، WebSite/SearchAction، Product، CollectionPage و FAQ
 - تولید sitemap و robots.txt
 - انتشار خودکار روی GitHub Pages
