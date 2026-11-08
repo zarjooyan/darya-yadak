@@ -73,6 +73,7 @@ const saveAuthConfig = async (password) => {
 const server = createServer(async (request, response) => {
   const origin = request.headers.origin;
   if (origin && !allowedOrigin.test(origin)) return send(response, 403, { error: "Origin not allowed" });
+  if (!origin && !(request.method === "GET" && request.url === "/health")) return send(response, 403, { error: "Origin header required" });
   if (origin) {
     response.setHeader("Access-Control-Allow-Origin", origin);
     response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -98,7 +99,7 @@ const server = createServer(async (request, response) => {
     if (request.method === "POST" && url.pathname === "/auth/setup") {
       if (authConfig) return send(response, 409, { error: "رمز مدیر قبلاً تنظیم شده است." });
       const { password } = await readJson(request, 4096);
-      if (typeof password !== "string" || password.length < 8) return send(response, 400, { error: "رمز عبور باید حداقل ۸ کاراکتر باشد." });
+      if (typeof password !== "string" || password.length < 8 || password.length > 128) return send(response, 400, { error: "رمز عبور باید بین ۸ تا ۱۲۸ کاراکتر باشد." });
       await saveAuthConfig(password);
       createSession(response);
       return send(response, 200, { success: true });

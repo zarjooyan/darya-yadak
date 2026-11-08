@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { brands, categories, getProductImageSrc, vehicles } from "@/lib/catalog";
 import CategoryAdmin from "@/components/admin/category-admin";
 import BrandAdmin from "@/components/admin/brand-admin";
@@ -66,7 +66,7 @@ export default function ProductAdmin() {
   const [managingBrands, setManagingBrands] = useState(false);
   const [managingVehicles, setManagingVehicles] = useState(false);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     const response = await fetch(`${API_URL}/products`, { credentials: "include" });
     if (!response.ok) throw new Error("Could not load products");
     let next = (await response.json()) as AdminProduct[];
@@ -93,7 +93,7 @@ export default function ProductAdmin() {
     }
 
     setItems(next);
-  };
+  }, []);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -112,7 +112,7 @@ export default function ProductAdmin() {
       }
     };
     void checkSession();
-  }, []);
+  }, [loadProducts]);
 
   const persist = async (next: AdminProduct[]) => {
     try {
@@ -136,7 +136,7 @@ export default function ProductAdmin() {
     [items, query],
   );
 
-  const authenticate = async (event: React.FormEvent<HTMLFormElement>) => {
+  const authenticate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setAuthError("");
     if (password.length < 8) {
