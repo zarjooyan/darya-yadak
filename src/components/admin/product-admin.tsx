@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { products as initialProducts, categories } from "@/lib/catalog";
+import productData from "@/data/products.json";
+import { categories } from "@/lib/catalog";
 
 type AdminProduct = {
   id: string;
@@ -18,6 +19,11 @@ type AdminProduct = {
   seoTitle: string;
   seoDescription: string;
   status: "draft" | "published";
+  price?: number;
+  oldPrice?: number;
+  rating?: number;
+  reviews?: number;
+  badge?: string;
 };
 
 const STORAGE_KEY = "darya-part-admin-products";
@@ -37,8 +43,10 @@ const emptyProduct = (): AdminProduct => ({
   seoTitle: "",
   seoDescription: "",
   status: "draft",
+  price: 0,
+  rating: 0,
+  reviews: 0,
 });
-
 
 export default function ProductAdmin() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -54,14 +62,13 @@ export default function ProductAdmin() {
     setAuthenticated(sessionStorage.getItem(SESSION_KEY) === "1");
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      try { setItems(JSON.parse(saved) as AdminProduct[]); } catch { setItems([]); }
+      try {
+        setItems(JSON.parse(saved) as AdminProduct[]);
+      } catch {
+        setItems(productData as AdminProduct[]);
+      }
     } else {
-      setItems(initialProducts.map((p) => ({
-        id: p.id, slug: p.slug, title: p.title, brand: p.brand,
-        category: p.category, sku: "", oemCode: "", fitment: p.fitment,
-        image: p.image, shortDescription: "", content: "", seoTitle: p.title,
-        seoDescription: "", status: "published",
-      })));
+      setItems(productData as AdminProduct[]);
     }
   }, []);
 
@@ -90,6 +97,9 @@ export default function ProductAdmin() {
 
   const save = () => {
     if (!active?.title.trim() || !active.slug.trim()) return alert("نام محصول و Slug الزامی است.");
+    if (items.some((p) => p.id !== active.id && p.slug === active.slug)) {
+      return alert("این slug قبلاً برای محصول دیگری استفاده شده است.");
+    }
     const next = items.some((p) => p.id === active.id)
       ? items.map((p) => p.id === active.id ? active : p)
       : [...items, active];
@@ -111,7 +121,9 @@ export default function ProductAdmin() {
     if (!file) return;
     try {
       const parsed = JSON.parse(await file.text()) as AdminProduct[];
-      if (!Array.isArray(parsed)) throw new Error();
+      if (!Array.isArray(parsed) || parsed.some((product) => !product.id || !product.slug || !product.title)) {
+        throw new Error("Invalid product data");
+      }
       persist(parsed);
     } catch {
       alert("فایل JSON معتبر نیست.");
