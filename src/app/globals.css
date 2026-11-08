@@ -790,3 +790,16 @@ body { padding-bottom:96px; }
   .brand-full-logo { width: 154px; }
   .footer-brand-logo { width: 190px; }
 }
+
+
+.push-opt-in { display:flex; align-items:center; gap:14px; margin-top:28px; padding:18px 20px; border:1px solid var(--color-border); border-radius:18px; background:var(--color-white-overlay-soft); }
+.push-opt-in-icon { width:42px; height:42px; flex-shrink:0; display:grid; place-items:center; border-radius:13px; color:var(--color-primary-700); background:var(--color-primary-50); }
+.push-opt-in-copy { display:grid; gap:2px; flex:1; min-width:0; }
+.push-opt-in-copy strong { color:var(--color-ink); font-size:13px; }
+.push-opt-in-copy small { color:var(--color-muted); font-size:11px; }
+.push-opt-in-copy .push-opt-in-message { color:var(--color-primary-700); }
+.push-opt-in-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:40px; padding:0 15px; border:1px solid var(--color-primary-500); border-radius:11px; background:var(--color-primary-600); color:#fff; font-size:11px; font-weight:800; white-space:nowrap; }
+.push-opt-in-button:disabled { opacity:.65; cursor:wait; }
+.push-spinner { animation:push-spin 1s linear infinite; }
+@keyframes push-spin { to { transform:rotate(360deg); } }
+@media(max-width:600px) { .push-opt-in { align-items:flex-start; flex-wrap:wrap; padding:15px; } .push-opt-in-copy { flex-basis:calc(100% - 58px); } .push-opt-in-button { width:100%; } }
