@@ -696,3 +696,97 @@ body { padding-bottom:96px; }
  body { padding-bottom:80px; }
 }
 @media (prefers-reduced-motion:reduce) { .floating-contact-button { transition:none; } .floating-contact-button:hover { transform:none; } }
+
+
+/* Darya Part visual identity tokens — aligned with the supplied light/dark style guide */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --page-bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-muted: #F1F5F9;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border-default: #E2E8F0;
+  --brand-primary: #0A84FF;
+  --brand-secondary: #3B82F6;
+  --color-primary-50: #EFF6FF;
+  --color-primary-100: #DBEAFE;
+  --color-primary-200: #BFDBFE;
+  --color-primary-300: #93C5FD;
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #0A84FF;
+  --color-primary-700: #2563EB;
+  --color-primary-800: #1D4ED8;
+  --color-primary-900: #1E3A8A;
+  --color-ink: #0F172A;
+  --color-ink-soft: #1E293B;
+  --color-muted: #64748B;
+  --color-border: #E2E8F0;
+  --color-surface: #F8FAFC;
+  --color-white: #FFFFFF;
+  --color-brand-tint: rgba(10,132,255,.10);
+  --color-brand-glow: rgba(10,132,255,.16);
+  --color-brand-glow-strong: rgba(10,132,255,.24);
+  --color-shadow-soft: rgba(15,23,42,.09);
+  --color-shadow-faint: rgba(15,23,42,.045);
+  --color-scrim: rgba(11,18,32,.58);
+  --color-white-overlay: rgba(255,255,255,.94);
+  --color-white-overlay-soft: rgba(255,255,255,.58);
+  --color-white-overlay-strong: rgba(255,255,255,.82);
+  --status-success: #10B981;
+  --status-warning: #F59E0B;
+  --status-danger: #EF4444;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg: #0B1220;
+  --surface: #111827;
+  --surface-muted: #172235;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-default: #1F2937;
+  --brand-primary: #3B82F6;
+  --brand-secondary: #60A5FA;
+  --color-primary-50: #172235;
+  --color-primary-100: #1E3A5F;
+  --color-primary-200: #244B78;
+  --color-primary-300: #356AA0;
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #3B82F6;
+  --color-primary-700: #60A5FA;
+  --color-primary-800: #93C5FD;
+  --color-primary-900: #BFDBFE;
+  --color-ink: #F8FAFC;
+  --color-ink-soft: #E2E8F0;
+  --color-muted: #94A3B8;
+  --color-border: #1F2937;
+  --color-surface: #0B1220;
+  --color-white: #111827;
+  --color-brand-tint: rgba(59,130,246,.16);
+  --color-brand-glow: rgba(59,130,246,.18);
+  --color-brand-glow-strong: rgba(59,130,246,.28);
+  --color-shadow-soft: rgba(0,0,0,.28);
+  --color-shadow-faint: rgba(0,0,0,.18);
+  --color-scrim: rgba(0,0,0,.66);
+  --color-white-overlay: rgba(17,24,39,.94);
+  --color-white-overlay-soft: rgba(148,163,184,.16);
+  --color-white-overlay-strong: rgba(17,24,39,.88);
+  --status-success: #10B981;
+  --status-warning: #FFB84D;
+  --status-danger: #EF4444;
+}
+
+/* Wordmark assets are theme-aware; keep the header compact and the footer balanced. */
+.brand { gap: 0; }
+.brand-full-logo { display: block; width: clamp(150px, 17vw, 205px); height: auto; object-fit: contain; }
+.brand-full-logo-dark { display: none; }
+:root[data-theme="dark"] .brand-full-logo-light { display: none; }
+:root[data-theme="dark"] .brand-full-logo-dark { display: block; }
+.footer-brand-logo { width: 220px; max-width: 100%; }
+@media (max-width: 680px) {
+  .brand-full-logo { width: 154px; }
+  .footer-brand-logo { width: 190px; }
+}
