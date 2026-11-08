@@ -1,6 +1,6 @@
-# دریا یدک | Darya Yadak
+# دریا پارت | Darya Part
 
-فروشگاه نمایشی لوازم یدکی خودرو با **Next.js App Router، React، TypeScript و Tailwind CSS v4**. رابط کاربری فارسی و راست‌چین است و از Design System مبتنی بر آبی روشن/پررنگ و خاکستری زغالی استفاده می‌کند.
+فروشگاه نمایشی لوازم یدکی خودرو با **Next.js App Router، React، TypeScript و Tailwind CSS v4**. رابط کاربری فارسی و راست‌چین است و از Design System روشن/تیره مبتنی بر آبی، سرمه‌ای و خاکستری استفاده می‌کند.
 
 ## شروع توسعه
 
@@ -37,7 +37,7 @@ Next.js با `output: "export"` فایل‌های استاتیک را در پو�
 - عنوان و توضیحات متای قابل تنظیم برای هر محصول، canonical، Open Graph و metadata زبان فارسی
 - Schema برای Organization، WebSite/SearchAction، Product، CollectionPage و FAQ
 - تولید sitemap و robots.txt
-- انتشار خودکار روی GitHub Pages
+- Web App Manifest با حالت نصب مستقل، آیکون‌های SVG و پشتیبانی از مسیر GitHub Pages\n- انتشار خودکار روی GitHub Pages
 
 ## نکات مهم
 
