@@ -5,6 +5,7 @@ import { brands, categories, getProductImageSrc, vehicles } from "@/lib/catalog"
 import CategoryAdmin from "@/components/admin/category-admin";
 import BrandAdmin from "@/components/admin/brand-admin";
 import VehicleAdmin from "@/components/admin/vehicle-admin";
+import PushAdmin from "@/components/admin/push-admin";
 
 const API_URL = "http://localhost:3031";
 const LEGACY_STORAGE_KEY = "darya-part-admin-products";
@@ -65,6 +66,7 @@ export default function ProductAdmin() {
   const [managingCategories, setManagingCategories] = useState(false);
   const [managingBrands, setManagingBrands] = useState(false);
   const [managingVehicles, setManagingVehicles] = useState(false);
+  const [managingPush, setManagingPush] = useState(false);
 
   const loadProducts = useCallback(async () => {
     const response = await fetch(`${API_URL}/products`, { credentials: "include" });
@@ -242,6 +244,10 @@ export default function ProductAdmin() {
     }
   };
 
+  if (managingPush && authenticated) {
+    return <PushAdmin onBack={() => setManagingPush(false)} />;
+  }
+
   if (managingVehicles && authenticated) {
     return <VehicleAdmin onBack={() => setManagingVehicles(false)} />;
   }
@@ -289,6 +295,7 @@ export default function ProductAdmin() {
           <button className="admin-quiet" onClick={() => setManagingCategories(true)}>مدیریت دسته‌بندی‌ها</button>
           <button className="admin-quiet" onClick={() => setManagingBrands(true)}>مدیریت برندها</button>
           <button className="admin-quiet" onClick={() => setManagingVehicles(true)}>مدیریت خودروها</button>
+          <button className="admin-quiet" onClick={() => setManagingPush(true)}>مدیریت اعلان‌ها</button>
           <button onClick={exportJson}>خروجی JSON</button>
           <label className="admin-button">ورود JSON<input type="file" accept="application/json" hidden onChange={(e) => importJson(e.target.files?.[0])} /></label>
           <button className="admin-quiet" onClick={logout}>خروج</button>
