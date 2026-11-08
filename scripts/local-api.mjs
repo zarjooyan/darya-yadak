@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const productsPath = path.join(root, "src/data/products.json");
+const categoriesPath = path.join(root, "src/data/categories.json");
 const uploadsPath = path.join(root, "public/uploads/products");
 const authPath = path.join(root, ".admin-auth.json");
 const cookieName = "darya_part_admin";
@@ -120,6 +121,30 @@ const server = createServer(async (request, response) => {
     }
 
     if (!hasSession(request)) return send(response, 401, { error: "برای ادامه وارد پنل شوید." });
+
+    if (request.method === "GET" && url.pathname === "/categories") {
+      const categories = JSON.parse(await readFile(categoriesPath, "utf8"));
+      return send(response, 200, categories);
+    }
+
+    if (request.method === "PUT" && url.pathname === "/categories") {
+      const categories = await readJson(request);
+      if (!Array.isArray(categories)) return send(response, 400, { error: "دسته‌بندی‌ها باید آرایه باشند." });
+      const slugs = new Set();
+      for (const category of categories) {
+        if (!category || typeof category.slug !== "string" || typeof category.title !== "string" || !category.slug.trim() || !category.title.trim()) {
+          return send(response, 400, { error: "نام و Slug دسته‌بندی الزامی است." });
+        }
+        if (slugs.has(category.slug)) return send(response, 400, { error: "Slug دسته‌بندی تکراری است." });
+        slugs.add(category.slug);
+      }
+      const products = JSON.parse(await readFile(productsPath, "utf8"));
+      if (products.some((product) => !slugs.has(product.category))) {
+        return send(response, 409, { error: "ابتدا محصولات این دسته‌بندی را به دسته دیگری منتقل کنید." });
+      }
+      await writeFile(categoriesPath, `${JSON.stringify(categories, null, 2)}\n`);
+      return send(response, 200, { success: true, count: categories.length });
+    }
 
     if (request.method === "GET" && url.pathname === "/products") {
       const products = JSON.parse(await readFile(productsPath, "utf8"));

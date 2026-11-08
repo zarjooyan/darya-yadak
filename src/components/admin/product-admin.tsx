@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import productData from "@/data/products.json";
 import { categories, getProductImageSrc } from "@/lib/catalog";
+import CategoryAdmin from "@/components/admin/category-admin";
 
 const API_URL = "http://localhost:3031";
 const LEGACY_STORAGE_KEY = "darya-part-admin-products";
@@ -59,6 +59,7 @@ export default function ProductAdmin() {
   const [items, setItems] = useState<AdminProduct[]>([]);
   const [active, setActive] = useState<AdminProduct | null>(null);
   const [query, setQuery] = useState("");
+  const [managingCategories, setManagingCategories] = useState(false);
 
   const loadProducts = async () => {
     const response = await fetch(`${API_URL}/products`, { credentials: "include" });
@@ -227,6 +228,10 @@ export default function ProductAdmin() {
     }
   };
 
+  if (managingCategories && authenticated) {
+    return <CategoryAdmin onBack={() => setManagingCategories(false)} />;
+  }
+
   if (!authReady) {
     return <main className="admin-shell" dir="rtl"><section className="admin-login"><h1>در حال اتصال به پنل...</h1></section></main>;
   }
@@ -259,6 +264,7 @@ export default function ProductAdmin() {
       <header className="admin-header">
         <div><span className="admin-eyebrow">DARYA PART · ADMIN</span><h1>مدیریت محصولات</h1></div>
         <div className="admin-actions">
+          <button className="admin-quiet" onClick={() => setManagingCategories(true)}>مدیریت دسته‌بندی‌ها</button>
           <button onClick={exportJson}>خروجی JSON</button>
           <label className="admin-button">ورود JSON<input type="file" accept="application/json" hidden onChange={(e) => importJson(e.target.files?.[0])} /></label>
           <button className="admin-quiet" onClick={logout}>خروج</button>

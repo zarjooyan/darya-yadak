@@ -1,4 +1,5 @@
 import productData from "@/data/products.json";
+import categoryData from "@/data/categories.json";
 
 export type Category = {
   slug: string;
@@ -30,12 +31,7 @@ export type Product = {
   status?: "draft" | "published";
 };
 
-export const categories: Category[] = [
-  { slug: "engine", title: "قطعات موتور", description: "فیلتر، تسمه، شمع و قطعات مصرفی", icon: "⚙️", count: "۲۴۰+ محصول" },
-  { slug: "body", title: "بدنه و چراغ", description: "چراغ، آینه و قطعات بدنه", icon: "🚘", count: "۱۸۰+ محصول" },
-  { slug: "electrical", title: "برقی و الکترونیکی", description: "باتری، سنسور و تجهیزات برقی", icon: "⚡", count: "۱۶۰+ محصول" },
-  { slug: "suspension", title: "جلوبندی و تعلیق", description: "کمک‌فنر، بوش و قطعات فرمان", icon: "🛞", count: "۱۳۰+ محصول" },
-];
+export const categories: Category[] = categoryData as Category[];
 
 export const products: Product[] = (productData as Product[]).filter(
   (product) => product.status === "published",
