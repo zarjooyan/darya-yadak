@@ -61,6 +61,7 @@ export default function ProductAdmin() {
   const [items, setItems] = useState<AdminProduct[]>([]);
   const [active, setActive] = useState<AdminProduct | null>(null);
   const [query, setQuery] = useState("");
+  const [preview, setPreview] = useState(false);
   const [managingCategories, setManagingCategories] = useState(false);
   const [managingBrands, setManagingBrands] = useState(false);
   const [managingVehicles, setManagingVehicles] = useState(false);
@@ -168,6 +169,15 @@ export default function ProductAdmin() {
 
   const save = async () => {
     if (!active?.title.trim() || !active.slug.trim()) return alert("نام محصول و Slug الزامی است.");
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(active.slug)) {
+      return alert("Slug باید فقط شامل حروف کوچک انگلیسی، عدد و خط تیره باشد.");
+    }
+    if (!categories.some((category) => category.slug === active.category)) {
+      return alert("دسته‌بندی انتخاب‌شده معتبر نیست.");
+    }
+    if (active.seoTitle.length > 60 || active.seoDescription.length > 160) {
+      return alert("عنوان SEO حداکثر ۶۰ و توضیحات متا حداکثر ۱۶۰ کاراکتر باشد.");
+    }
     if (items.some((p) => p.id !== active.id && p.slug === active.slug)) {
       return alert("این slug قبلاً برای محصول دیگری استفاده شده است.");
     }
@@ -286,11 +296,24 @@ export default function ProductAdmin() {
       </header>
       <section className="admin-toolbar">
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="جستجوی نام یا slug محصول..." />
-        <button onClick={() => setActive(emptyProduct())}>＋ محصول جدید</button>
+        <button onClick={() => { setPreview(false); setActive(emptyProduct()); }}>＋ محصول جدید</button>
       </section>
       {active ? (
         <section className="admin-editor">
-          <div className="admin-form-heading"><h2>{items.some((p) => p.id === active.id) ? "ویرایش محصول" : "محصول جدید"}</h2><button className="admin-quiet" onClick={() => setActive(null)}>بستن</button></div>
+          <div className="admin-form-heading"><h2>{items.some((p) => p.id === active.id) ? "ویرایش محصول" : "محصول جدید"}</h2><div className="admin-actions"><button className="admin-quiet" onClick={() => setPreview((value) => !value)}>{preview ? "بازگشت به ویرایش" : "پیش‌نمایش"}</button><button className="admin-quiet" onClick={() => { setActive(null); setPreview(false); }}>بستن</button></div></div>
+          {preview ? (
+            <div className="admin-product-preview">
+              {active.image && <img src={getProductImageSrc(active.image)} alt={active.title} />}
+              <span className="admin-eyebrow">پیش‌نمایش محصول</span>
+              <h1>{active.title || "عنوان محصول"}</h1>
+              <p>{active.shortDescription || "توضیح کوتاه محصول"}</p>
+              <div><strong>برند:</strong> {active.brand || "—"}　<strong>خودرو:</strong> {active.fitment || "—"}</div>
+              {active.content && <p className="admin-preview-content">{active.content}</p>}
+              <small>SEO title: {active.seoTitle || active.title}</small>
+              <small>Meta description: {active.seoDescription || "—"}</small>
+            </div>
+          ) : (
+            <>
           <div className="admin-fields">
             {([
               ["title", "نام محصول"], ["slug", "آدرس انگلیسی (slug)"], ["brand", "برند"], ["sku", "شناسه کالا"], ["oemCode", "کد OEM"], ["fitment", "خودروهای سازگار"], ["image", "آدرس تصویر"], ["shortDescription", "توضیح کوتاه"], ["seoTitle", "عنوان SEO"], ["seoDescription", "توضیحات Meta"],
@@ -309,12 +332,14 @@ export default function ProductAdmin() {
           </div>
           <label className="admin-editor-label">محتوای کامل محصول</label>
           <textarea className="admin-content-textarea" value={active.content} onChange={(e) => setActive({ ...active, content: e.target.value })} rows={12} placeholder="محتوای کامل محصول را وارد کنید..." />
+            </>
+          )}
           <div className="admin-form-footer"><button onClick={save}>ذخیره محصول</button><button className="admin-quiet" onClick={() => setActive(null)}>انصراف</button></div>
         </section>
       ) : (
         <section className="admin-product-list">
           <div className="admin-list-heading"><h2>محصولات ({filtered.length})</h2><span>نقش فعال: مدیر</span></div>
-          {filtered.map((p) => <article className="admin-product-row" key={p.id}><div><strong>{p.title}</strong><small>{p.slug} · {p.brand || "بدون برند"}</small></div><span className={p.status === "published" ? "admin-status-published" : "admin-status-draft"}>{p.status === "published" ? "منتشرشده" : "پیش‌نویس"}</span><button className="admin-quiet" onClick={() => setActive(p)}>ویرایش</button><button className="admin-danger" onClick={() => { if (confirm("این محصول حذف شود؟")) void persist(items.filter((x) => x.id !== p.id)); }}>حذف</button></article>)}
+          {filtered.map((p) => <article className="admin-product-row" key={p.id}><div><strong>{p.title}</strong><small>{p.slug} · {p.brand || "بدون برند"}</small></div><span className={p.status === "published" ? "admin-status-published" : "admin-status-draft"}>{p.status === "published" ? "منتشرشده" : "پیش‌نویس"}</span><button className="admin-quiet" onClick={() => { setPreview(false); setActive(p); }}>ویرایش</button><button className="admin-danger" onClick={() => { if (confirm("این محصول حذف شود؟")) void persist(items.filter((x) => x.id !== p.id)); }}>حذف</button></article>)}
         </section>
       )}
     </main>
