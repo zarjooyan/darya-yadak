@@ -73,7 +73,7 @@ const readPushSubscriptions = async () => {
 };
 
 const savePushSubscriptions = async (subscriptions) => {
-  await writeFile(pushSubscriptionsPath, `${JSON.stringify(subscriptions, null, 2)}\\n`, { mode: 0o600 });
+  await writeFile(pushSubscriptionsPath, `${JSON.stringify(subscriptions, null, 2)}\n`, { mode: 0o600 });
 };
 
 const getPushConfig = async () => {
@@ -82,7 +82,7 @@ const getPushConfig = async () => {
   } catch {
     const keys = webpush.generateVAPIDKeys();
     const config = { ...keys, subject: "mailto:admin@darya-part.local" };
-    await writeFile(pushVapidPath, `${JSON.stringify(config, null, 2)}\\n`, { mode: 0o600 });
+    await writeFile(pushVapidPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
     return config;
   }
 };
