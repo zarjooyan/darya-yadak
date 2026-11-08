@@ -46,3 +46,8 @@ export const formatPrice = (price: number) =>
 
 export const getProduct = (slug: string) => products.find((product) => product.slug === slug);
 export const getCategory = (slug: string) => categories.find((category) => category.slug === slug);
+
+export const getProductImageSrc = (image: string) =>
+  image.startsWith("/uploads/") && process.env.NODE_ENV === "production"
+    ? "/darya-yadak" + image
+    : image;

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CarFront, Check, ChevronDown, Cog, Headphones, Heart, Menu, Moon, PackageCheck, PhoneCall, Search, ShieldCheck, ShoppingBag, Sun, Truck, Wrench, X } from "lucide-react";
-import { categories, formatPrice, products, type Product } from "@/lib/catalog";
+import { categories, formatPrice, getProductImageSrc, products, type Product } from "@/lib/catalog";
 
 export function Header() {
   const [query, setQuery] = useState("");
@@ -60,7 +60,7 @@ export function FloatingContactBar() {
 
 export function ProductCard({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
-  return <article className="product-card"><Link href={"/product/"+product.slug+"/"} aria-label={product.title}><div className="product-photo-wrap">{product.badge && <span className="product-badge">{product.badge}</span>}<img className="product-photo" src={product.image} alt={product.title} loading="lazy"/></div></Link><div className="product-body"><span className="product-brand">{product.brand}</span><Link href={"/product/"+product.slug+"/"} className="product-title">{product.title}</Link><div className="product-fitment"><CarFront size={14}/>{product.fitment}</div><div className="product-rating">★ {product.rating} <span>({product.reviews} دیدگاه نمونه)</span></div><div className="product-price-row"><div className="product-price">{formatPrice(product.price)}{product.oldPrice && <span className="product-old-price">{formatPrice(product.oldPrice)}</span>}</div><button className="add-cart" aria-label={added ? "به لیست علاقه‌مندی اضافه شد" : "افزودن به لیست"} onClick={() => setAdded(!added)} title={added ? "ذخیره شد" : "ذخیره محصول"}>{added ? <Check size={17}/> : <Heart size={17}/>}</button></div></div></article>;
+  return <article className="product-card"><Link href={"/product/"+product.slug+"/"} aria-label={product.title}><div className="product-photo-wrap">{product.badge && <span className="product-badge">{product.badge}</span>}<img className="product-photo" src={getProductImageSrc(product.image)} alt={product.title} loading="lazy"/></div></Link><div className="product-body"><span className="product-brand">{product.brand}</span><Link href={"/product/"+product.slug+"/"} className="product-title">{product.title}</Link><div className="product-fitment"><CarFront size={14}/>{product.fitment}</div><div className="product-rating">★ {product.rating} <span>({product.reviews} دیدگاه نمونه)</span></div><div className="product-price-row"><div className="product-price">{formatPrice(product.price)}{product.oldPrice && <span className="product-old-price">{formatPrice(product.oldPrice)}</span>}</div><button className="add-cart" aria-label={added ? "به لیست علاقه‌مندی اضافه شد" : "افزودن به لیست"} onClick={() => setAdded(!added)} title={added ? "ذخیره شد" : "ذخیره محصول"}>{added ? <Check size={17}/> : <Heart size={17}/>}</button></div></div></article>;
 }
 
 export function ProductGrid({ items = products }: { items?: Product[] }) {

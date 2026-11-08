@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/dev.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "sync:products": "node scripts/sync-products.mjs"
+    "sync:products": "node scripts/sync-products.mjs",
+    "dev:next": "next dev"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.14",

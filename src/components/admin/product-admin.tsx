@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import productData from "@/data/products.json";
-import { categories } from "@/lib/catalog";
+import { categories, getProductImageSrc } from "@/lib/catalog";
+
+const API_URL = "http://localhost:3031";
 
 type AdminProduct = {
   id: string;
@@ -26,7 +28,6 @@ type AdminProduct = {
   badge?: string;
 };
 
-const STORAGE_KEY = "darya-part-admin-products";
 const SESSION_KEY = "darya-part-admin-session";
 const emptyProduct = (): AdminProduct => ({
   id: crypto.randomUUID(),
@@ -60,21 +61,34 @@ export default function ProductAdmin() {
     const savedPin = localStorage.getItem("darya-part-admin-pin");
     setConfiguredPin(savedPin ?? "");
     setAuthenticated(sessionStorage.getItem(SESSION_KEY) === "1");
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+
+    const loadProducts = async () => {
       try {
-        setItems(JSON.parse(saved) as AdminProduct[]);
+        const response = await fetch(`${API_URL}/products`);
+        if (!response.ok) throw new Error("Could not load products");
+        setItems((await response.json()) as AdminProduct[]);
       } catch {
         setItems(productData as AdminProduct[]);
+        alert("سرویس محلی در دسترس نیست. پنل را با دستور npm run dev اجرا کنید.");
       }
-    } else {
-      setItems(productData as AdminProduct[]);
-    }
+    };
+    void loadProducts();
   }, []);
 
-  const persist = (next: AdminProduct[]) => {
-    setItems(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  const persist = async (next: AdminProduct[]) => {
+    try {
+      const response = await fetch(`${API_URL}/products`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      if (!response.ok) throw new Error("Could not save products");
+      setItems(next);
+      return true;
+    } catch {
+      alert("ذخیره اطلاعات انجام نشد. اتصال سرویس محلی را بررسی کنید.");
+      return false;
+    }
   };
 
   const filtered = useMemo(
@@ -95,7 +109,7 @@ export default function ProductAdmin() {
     setPin("");
   };
 
-  const save = () => {
+  const save = async () => {
     if (!active?.title.trim() || !active.slug.trim()) return alert("نام محصول و Slug الزامی است.");
     if (items.some((p) => p.id !== active.id && p.slug === active.slug)) {
       return alert("این slug قبلاً برای محصول دیگری استفاده شده است.");
@@ -103,8 +117,38 @@ export default function ProductAdmin() {
     const next = items.some((p) => p.id === active.id)
       ? items.map((p) => p.id === active.id ? active : p)
       : [...items, active];
-    persist(next);
-    setActive(null);
+    if (await persist(next)) setActive(null);
+  };
+
+  const uploadImage = async (file?: File) => {
+    if (!file || !active) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      alert("فقط تصاویر JPG، PNG و WebP پشتیبانی می‌شوند.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      alert("حجم تصویر نباید بیشتر از ۸ مگابایت باشد.");
+      return;
+    }
+
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const response = await fetch(`${API_URL}/upload`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: file.name, mimeType: file.type, base64 }),
+      });
+      if (!response.ok) throw new Error("Image upload failed");
+      const result = (await response.json()) as { image: string };
+      setActive((current) => current ? { ...current, image: result.image } : current);
+    } catch {
+      alert("آپلود تصویر انجام نشد.");
+    }
   };
 
   const exportJson = () => {
@@ -124,9 +168,9 @@ export default function ProductAdmin() {
       if (!Array.isArray(parsed) || parsed.some((product) => !product.id || !product.slug || !product.title)) {
         throw new Error("Invalid product data");
       }
-      persist(parsed);
+      if (!(await persist(parsed))) throw new Error("Could not import products");
     } catch {
-      alert("فایل JSON معتبر نیست.");
+      alert("فایل JSON معتبر نیست یا ذخیره آن انجام نشد.");
     }
   };
 
@@ -174,6 +218,10 @@ export default function ProductAdmin() {
             <label>دسته‌بندی<select value={active.category} onChange={(e) => setActive({ ...active, category: e.target.value })}>{categories.map((c) => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select></label>
             <label>وضعیت<select value={active.status} onChange={(e) => setActive({ ...active, status: e.target.value as AdminProduct["status"] })}><option value="draft">پیش‌نویس</option><option value="published">منتشرشده</option></select></label>
           </div>
+          <div className="admin-image-upload">
+            <label className="admin-button">آپلود تصویر<input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={(e) => uploadImage(e.target.files?.[0])} /></label>
+            {active.image && <img src={getProductImageSrc(active.image)} alt="پیش‌نمایش تصویر محصول" />}
+          </div>
           <label className="admin-editor-label">محتوای کامل محصول</label>
           <textarea className="admin-content-textarea" value={active.content} onChange={(e) => setActive({ ...active, content: e.target.value })} rows={12} placeholder="محتوای کامل محصول را وارد کنید..." />
           <div className="admin-form-footer"><button onClick={save}>ذخیره محصول</button><button className="admin-quiet" onClick={() => setActive(null)}>انصراف</button></div>
@@ -181,7 +229,7 @@ export default function ProductAdmin() {
       ) : (
         <section className="admin-product-list">
           <div className="admin-list-heading"><h2>محصولات ({filtered.length})</h2><span>نقش فعال: مدیر</span></div>
-          {filtered.map((p) => <article className="admin-product-row" key={p.id}><div><strong>{p.title}</strong><small>{p.slug} · {p.brand || "بدون برند"}</small></div><span className={p.status === "published" ? "admin-status-published" : "admin-status-draft"}>{p.status === "published" ? "منتشرشده" : "پیش‌نویس"}</span><button className="admin-quiet" onClick={() => setActive(p)}>ویرایش</button><button className="admin-danger" onClick={() => { if (confirm("این محصول حذف شود؟")) persist(items.filter((x) => x.id !== p.id)); }}>حذف</button></article>)}
+          {filtered.map((p) => <article className="admin-product-row" key={p.id}><div><strong>{p.title}</strong><small>{p.slug} · {p.brand || "بدون برند"}</small></div><span className={p.status === "published" ? "admin-status-published" : "admin-status-draft"}>{p.status === "published" ? "منتشرشده" : "پیش‌نویس"}</span><button className="admin-quiet" onClick={() => setActive(p)}>ویرایش</button><button className="admin-danger" onClick={() => { if (confirm("این محصول حذف شود؟")) void persist(items.filter((x) => x.id !== p.id)); }}>حذف</button></article>)}
         </section>
       )}
     </main>
