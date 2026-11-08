@@ -6,3 +6,6 @@ dist
 *.tsbuildinfo
 next-env.d.ts
 .admin-auth.json
+
+.push-vapid.json
+.push-subscriptions.json
