@@ -199,7 +199,7 @@ const server = createServer(async (request, response) => {
       const destination = typeof targetUrl === "string" && targetUrl.startsWith("/") && !targetUrl.startsWith("//") ? targetUrl : "/";
       await configurePush();
       const subscriptions = await readPushSubscriptions();
-      const payload = JSON.stringify({ title: title.trim(), body: body.trim(), url: destination, icon: "/darya-part-icon.svg", badge: "/favicon.svg" });
+      const payload = JSON.stringify({ title: title.trim(), body: body.trim(), url: destination, icon: "darya-part-icon.svg", badge: "favicon.svg" });
       let sent = 0;
       let failed = 0;
       const expired = new Set();
