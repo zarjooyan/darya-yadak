@@ -8,6 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const productsPath = path.join(root, "src/data/products.json");
 const categoriesPath = path.join(root, "src/data/categories.json");
 const brandsPath = path.join(root, "src/data/brands.json");
+const vehiclesPath = path.join(root, "src/data/vehicles.json");
 const uploadsPath = path.join(root, "public/uploads/products");
 const authPath = path.join(root, ".admin-auth.json");
 const cookieName = "darya_part_admin";
@@ -122,6 +123,28 @@ const server = createServer(async (request, response) => {
     }
 
     if (!hasSession(request)) return send(response, 401, { error: "برای ادامه وارد پنل شوید." });
+
+    if (request.method === "GET" && url.pathname === "/vehicles") {
+      const vehicles = JSON.parse(await readFile(vehiclesPath, "utf8"));
+      return send(response, 200, vehicles);
+    }
+
+    if (request.method === "PUT" && url.pathname === "/vehicles") {
+      const vehicles = await readJson(request);
+      if (!Array.isArray(vehicles)) return send(response, 400, { error: "خودروها باید آرایه باشند." });
+      const slugs = new Set();
+      const names = new Set();
+      for (const vehicle of vehicles) {
+        if (!vehicle || typeof vehicle.slug !== "string" || typeof vehicle.name !== "string" || !vehicle.slug.trim() || !vehicle.name.trim()) {
+          return send(response, 400, { error: "نام و Slug خودرو الزامی است." });
+        }
+        if (slugs.has(vehicle.slug) || names.has(vehicle.name)) return send(response, 400, { error: "Slug یا نام خودرو تکراری است." });
+        slugs.add(vehicle.slug);
+        names.add(vehicle.name);
+      }
+      await writeFile(vehiclesPath, `${JSON.stringify(vehicles, null, 2)}\n`);
+      return send(response, 200, { success: true, count: vehicles.length });
+    }
 
     if (request.method === "GET" && url.pathname === "/brands") {
       const brands = JSON.parse(await readFile(brandsPath, "utf8"));
