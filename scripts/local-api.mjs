@@ -2,6 +2,7 @@ import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from
 import { createServer } from "node:http";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import webpush from "web-push";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -11,6 +12,8 @@ const brandsPath = path.join(root, "src/data/brands.json");
 const vehiclesPath = path.join(root, "src/data/vehicles.json");
 const uploadsPath = path.join(root, "public/uploads/products");
 const authPath = path.join(root, ".admin-auth.json");
+const pushVapidPath = path.join(root, ".push-vapid.json");
+const pushSubscriptionsPath = path.join(root, ".push-subscriptions.json");
 const cookieName = "darya_part_admin";
 const allowedTypes = new Map([
   ["image/jpeg", ".jpg"],
@@ -58,6 +61,36 @@ const hasSession = (request) => {
   const expected = createHmac("sha256", authConfig.secret).update(expires).digest();
   const received = Buffer.from(signature, "hex");
   return received.length === expected.length && timingSafeEqual(received, expected);
+};
+
+const readPushSubscriptions = async () => {
+  try {
+    const subscriptions = JSON.parse(await readFile(pushSubscriptionsPath, "utf8"));
+    return Array.isArray(subscriptions) ? subscriptions : [];
+  } catch {
+    return [];
+  }
+};
+
+const savePushSubscriptions = async (subscriptions) => {
+  await writeFile(pushSubscriptionsPath, `${JSON.stringify(subscriptions, null, 2)}\\n`, { mode: 0o600 });
+};
+
+const getPushConfig = async () => {
+  try {
+    return JSON.parse(await readFile(pushVapidPath, "utf8"));
+  } catch {
+    const keys = webpush.generateVAPIDKeys();
+    const config = { ...keys, subject: "mailto:admin@darya-part.local" };
+    await writeFile(pushVapidPath, `${JSON.stringify(config, null, 2)}\\n`, { mode: 0o600 });
+    return config;
+  }
+};
+
+const configurePush = async () => {
+  const config = await getPushConfig();
+  webpush.setVapidDetails(config.subject, config.publicKey, config.privateKey);
+  return config;
 };
 
 const saveAuthConfig = async (password) => {
@@ -123,7 +156,65 @@ const server = createServer(async (request, response) => {
       return send(response, 200, { success: true });
     }
 
+    if (request.method === "GET" && url.pathname === "/push/public-key") {
+      const config = await configurePush();
+      return send(response, 200, { publicKey: config.publicKey });
+    }
+
+    if (request.method === "POST" && url.pathname === "/push/subscribe") {
+      const subscription = await readJson(request, 64 * 1024);
+      if (!subscription || typeof subscription.endpoint !== "string" || !subscription.endpoint.startsWith("https://") ||
+          !subscription.keys || typeof subscription.keys.p256dh !== "string" || typeof subscription.keys.auth !== "string") {
+        return send(response, 400, { error: "اطلاعات اشتراک Push معتبر نیست." });
+      }
+      const subscriptions = await readPushSubscriptions();
+      const next = subscriptions.filter((item) => item.endpoint !== subscription.endpoint);
+      next.push({ endpoint: subscription.endpoint, keys: subscription.keys, createdAt: new Date().toISOString(), userAgent: String(request.headers["user-agent"] ?? "").slice(0, 300) });
+      await savePushSubscriptions(next);
+      return send(response, 201, { success: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/push/unsubscribe") {
+      const { endpoint } = await readJson(request, 16 * 1024);
+      if (typeof endpoint !== "string") return send(response, 400, { error: "آدرس اشتراک معتبر نیست." });
+      const subscriptions = await readPushSubscriptions();
+      const next = subscriptions.filter((item) => item.endpoint !== endpoint);
+      await savePushSubscriptions(next);
+      return send(response, 200, { success: true, removed: subscriptions.length - next.length });
+    }
+
     if (!hasSession(request)) return send(response, 401, { error: "برای ادامه وارد پنل شوید." });
+
+    if (request.method === "GET" && url.pathname === "/push/stats") {
+      const subscriptions = await readPushSubscriptions();
+      return send(response, 200, { count: subscriptions.length });
+    }
+
+    if (request.method === "POST" && url.pathname === "/push/send") {
+      const { title, body, url: targetUrl } = await readJson(request, 16 * 1024);
+      if (typeof title !== "string" || !title.trim() || title.length > 80 ||
+          typeof body !== "string" || !body.trim() || body.length > 240) {
+        return send(response, 400, { error: "عنوان (حداکثر ۸۰) و متن (حداکثر ۲۴۰ کاراکتر) الزامی است." });
+      }
+      const destination = typeof targetUrl === "string" && targetUrl.startsWith("/") && !targetUrl.startsWith("//") ? targetUrl : "/";
+      await configurePush();
+      const subscriptions = await readPushSubscriptions();
+      const payload = JSON.stringify({ title: title.trim(), body: body.trim(), url: destination, icon: "/darya-part-icon.svg", badge: "/favicon.svg" });
+      let sent = 0;
+      let failed = 0;
+      const expired = new Set();
+      await Promise.all(subscriptions.map(async (subscription) => {
+        try {
+          await webpush.sendNotification(subscription, payload, { TTL: 60 * 60, urgency: "normal" });
+          sent += 1;
+        } catch (error) {
+          failed += 1;
+          if (error && (error.statusCode === 404 || error.statusCode === 410)) expired.add(subscription.endpoint);
+        }
+      }));
+      if (expired.size) await savePushSubscriptions(subscriptions.filter((item) => !expired.has(item.endpoint)));
+      return send(response, 200, { success: true, sent, failed, removed: expired.size });
+    }
 
     if (request.method === "GET" && url.pathname === "/vehicles") {
       const vehicles = JSON.parse(await readFile(vehiclesPath, "utf8"));
