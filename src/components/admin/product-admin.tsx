@@ -5,6 +5,7 @@ import productData from "@/data/products.json";
 import { categories, getProductImageSrc } from "@/lib/catalog";
 
 const API_URL = "http://localhost:3031";
+const LEGACY_STORAGE_KEY = "darya-part-admin-products";
 
 type AdminProduct = {
   id: string;
@@ -28,7 +29,6 @@ type AdminProduct = {
   badge?: string;
 };
 
-const SESSION_KEY = "darya-part-admin-session";
 const emptyProduct = (): AdminProduct => ({
   id: crypto.randomUUID(),
   slug: "",
@@ -51,34 +51,68 @@ const emptyProduct = (): AdminProduct => ({
 
 export default function ProductAdmin() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [pin, setPin] = useState("");
-  const [configuredPin, setConfiguredPin] = useState("");
+  const [authConfigured, setAuthConfigured] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [apiAvailable, setApiAvailable] = useState(true);
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState("");
   const [items, setItems] = useState<AdminProduct[]>([]);
   const [active, setActive] = useState<AdminProduct | null>(null);
   const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    const savedPin = localStorage.getItem("darya-part-admin-pin");
-    setConfiguredPin(savedPin ?? "");
-    setAuthenticated(sessionStorage.getItem(SESSION_KEY) === "1");
+  const loadProducts = async () => {
+    const response = await fetch(`${API_URL}/products`, { credentials: "include" });
+    if (!response.ok) throw new Error("Could not load products");
+    let next = (await response.json()) as AdminProduct[];
 
-    const loadProducts = async () => {
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy) {
       try {
-        const response = await fetch(`${API_URL}/products`);
-        if (!response.ok) throw new Error("Could not load products");
-        setItems((await response.json()) as AdminProduct[]);
+        const migrated = JSON.parse(legacy) as AdminProduct[];
+        if (Array.isArray(migrated) && migrated.every((product) => product.id && product.slug && product.title)) {
+          const migration = await fetch(`${API_URL}/products`, {
+            method: "PUT",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(migrated),
+          });
+          if (migration.ok) {
+            next = migrated;
+            localStorage.removeItem(LEGACY_STORAGE_KEY);
+          }
+        }
       } catch {
-        setItems(productData as AdminProduct[]);
-        alert("سرویس محلی در دسترس نیست. پنل را با دستور npm run dev اجرا کنید.");
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+      }
+    }
+
+    setItems(next);
+  };
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch(`${API_URL}/auth/status`, { credentials: "include" });
+        if (!response.ok) throw new Error("Local API unavailable");
+        const status = (await response.json()) as { configured: boolean; authenticated: boolean };
+        setAuthConfigured(status.configured);
+        setAuthenticated(status.authenticated);
+        setApiAvailable(true);
+        if (status.authenticated) await loadProducts();
+      } catch {
+        setApiAvailable(false);
+      } finally {
+        setAuthReady(true);
       }
     };
-    void loadProducts();
+    void checkSession();
   }, []);
 
   const persist = async (next: AdminProduct[]) => {
     try {
       const response = await fetch(`${API_URL}/products`, {
         method: "PUT",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(next),
       });
@@ -96,17 +130,35 @@ export default function ProductAdmin() {
     [items, query],
   );
 
-  const login = () => {
-    if (!configuredPin) {
-      if (pin.length < 6) return alert("رمز مدیر باید حداقل ۶ رقم یا کاراکتر باشد.");
-      localStorage.setItem("darya-part-admin-pin", pin);
-      setConfiguredPin(pin);
-    } else if (pin !== configuredPin) {
-      return alert("رمز ورود صحیح نیست.");
+  const authenticate = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAuthError("");
+    if (password.length < 8) {
+      setAuthError("رمز عبور باید حداقل ۸ کاراکتر باشد.");
+      return;
     }
-    sessionStorage.setItem(SESSION_KEY, "1");
-    setAuthenticated(true);
-    setPin("");
+    try {
+      const response = await fetch(`${API_URL}/auth/${authConfigured ? "login" : "setup"}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const result = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "ورود انجام نشد.");
+      setAuthenticated(true);
+      setAuthConfigured(true);
+      setPassword("");
+      await loadProducts();
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "ارتباط با سرویس محلی برقرار نشد.");
+    }
+  };
+
+  const logout = async () => {
+    await fetch(`${API_URL}/auth/logout`, { method: "POST", credentials: "include" });
+    setAuthenticated(false);
+    setActive(null);
   };
 
   const save = async () => {
@@ -140,6 +192,7 @@ export default function ProductAdmin() {
       });
       const response = await fetch(`${API_URL}/upload`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: file.name, mimeType: file.type, base64 }),
       });
@@ -174,19 +227,28 @@ export default function ProductAdmin() {
     }
   };
 
+  if (!authReady) {
+    return <main className="admin-shell" dir="rtl"><section className="admin-login"><h1>در حال اتصال به پنل...</h1></section></main>;
+  }
+
+  if (!apiAvailable) {
+    return <main className="admin-shell" dir="rtl"><section className="admin-login"><h1>سرویس محلی اجرا نشده است</h1><p>ترمینال را در پوشه پروژه باز کن و دستور <code>npm run dev</code> را اجرا کن.</p></section></main>;
+  }
+
   if (!authenticated) {
     return (
       <main className="admin-shell" dir="rtl">
         <section className="admin-login">
           <span className="admin-eyebrow">DARYA PART · ADMIN</span>
-          <h1>ورود به مدیریت</h1>
-          <p>{configuredPin ? "رمز مدیر را وارد کنید." : "برای اولین ورود، رمز مدیر محلی را تعریف کنید."}</p>
-          <form onSubmit={(e) => { e.preventDefault(); login(); }}>
-            <label htmlFor="admin-pin">رمز مدیر</label>
-            <input id="admin-pin" type="password" value={pin} onChange={(e) => setPin(e.target.value)} minLength={6} autoComplete="current-password" />
-            <button type="submit">ورود به پنل</button>
+          <h1>{authConfigured ? "ورود به مدیریت" : "تنظیم رمز مدیر"}</h1>
+          <p>{authConfigured ? "رمز عبور مدیر را وارد کنید." : "برای اولین ورود، یک رمز عبور محلی و امن تعریف کنید."}</p>
+          <form onSubmit={authenticate}>
+            <label htmlFor="admin-password">رمز عبور مدیر</label>
+            <input id="admin-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} autoComplete={authConfigured ? "current-password" : "new-password"} required />
+            {authError && <small role="alert">{authError}</small>}
+            <button type="submit">{authConfigured ? "ورود به پنل" : "ذخیره رمز و ورود"}</button>
           </form>
-          <small>این قفل صرفاً برای استفاده محلی است و جایگزین احراز هویت امن سمت سرور نیست.</small>
+          <small>اطلاعات احراز هویت فقط روی همین سیستم و در فایل نادیده‌گرفته‌شده .admin-auth.json ذخیره می‌شود.</small>
         </section>
       </main>
     );
@@ -199,7 +261,7 @@ export default function ProductAdmin() {
         <div className="admin-actions">
           <button onClick={exportJson}>خروجی JSON</button>
           <label className="admin-button">ورود JSON<input type="file" accept="application/json" hidden onChange={(e) => importJson(e.target.files?.[0])} /></label>
-          <button className="admin-quiet" onClick={() => { sessionStorage.removeItem(SESSION_KEY); setAuthenticated(false); }}>خروج</button>
+          <button className="admin-quiet" onClick={logout}>خروج</button>
         </div>
       </header>
       <section className="admin-toolbar">

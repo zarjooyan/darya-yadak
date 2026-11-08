@@ -1,5 +1,5 @@
+import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
-import { randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,12 +7,22 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const productsPath = path.join(root, "src/data/products.json");
 const uploadsPath = path.join(root, "public/uploads/products");
+const authPath = path.join(root, ".admin-auth.json");
+const cookieName = "darya_part_admin";
 const allowedTypes = new Map([
   ["image/jpeg", ".jpg"],
   ["image/png", ".png"],
   ["image/webp", ".webp"],
 ]);
 const allowedOrigin = /^http:\/\/(localhost|127\.0\.0\.1):30(?:0[0-9]|10)$/;
+const sessionDuration = 8 * 60 * 60;
+
+let authConfig = null;
+try {
+  authConfig = JSON.parse(await readFile(authPath, "utf8"));
+} catch {
+  authConfig = null;
+}
 
 const send = (response, status, data) => {
   response.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
@@ -30,11 +40,39 @@ const readJson = async (request, limit = 12 * 1024 * 1024) => {
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 };
 
+const createSession = (response) => {
+  const expires = String(Math.floor(Date.now() / 1000) + sessionDuration);
+  const signature = createHmac("sha256", authConfig.secret).update(expires).digest("hex");
+  response.setHeader("Set-Cookie", `${cookieName}=${expires}.${signature}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${sessionDuration}`);
+};
+
+const hasSession = (request) => {
+  if (!authConfig) return false;
+  const cookie = (request.headers.cookie ?? "").split(";").map((part) => part.trim()).find((part) => part.startsWith(`${cookieName}=`));
+  if (!cookie) return false;
+  const [expires, signature] = cookie.slice(cookieName.length + 1).split(".");
+  if (!expires || !signature || Number(expires) <= Math.floor(Date.now() / 1000)) return false;
+  const expected = createHmac("sha256", authConfig.secret).update(expires).digest();
+  const received = Buffer.from(signature, "hex");
+  return received.length === expected.length && timingSafeEqual(received, expected);
+};
+
+const saveAuthConfig = async (password) => {
+  const salt = randomBytes(16).toString("hex");
+  authConfig = {
+    salt,
+    hash: scryptSync(password, salt, 64).toString("hex"),
+    secret: randomBytes(32).toString("hex"),
+  };
+  await writeFile(authPath, `${JSON.stringify(authConfig, null, 2)}\n`, { mode: 0o600 });
+};
+
 const server = createServer(async (request, response) => {
   const origin = request.headers.origin;
   if (origin && !allowedOrigin.test(origin)) return send(response, 403, { error: "Origin not allowed" });
   if (origin) {
     response.setHeader("Access-Control-Allow-Origin", origin);
+    response.setHeader("Access-Control-Allow-Credentials", "true");
     response.setHeader("Vary", "Origin");
   }
   response.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, OPTIONS");
@@ -49,10 +87,45 @@ const server = createServer(async (request, response) => {
     if (request.method === "GET" && url.pathname === "/health") {
       return send(response, 200, { ok: true });
     }
+
+    if (request.method === "GET" && url.pathname === "/auth/status") {
+      return send(response, 200, { configured: Boolean(authConfig), authenticated: hasSession(request) });
+    }
+
+    if (request.method === "POST" && url.pathname === "/auth/setup") {
+      if (authConfig) return send(response, 409, { error: "رمز مدیر قبلاً تنظیم شده است." });
+      const { password } = await readJson(request, 4096);
+      if (typeof password !== "string" || password.length < 8) return send(response, 400, { error: "رمز عبور باید حداقل ۸ کاراکتر باشد." });
+      await saveAuthConfig(password);
+      createSession(response);
+      return send(response, 200, { success: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/auth/login") {
+      if (!authConfig) return send(response, 409, { error: "ابتدا رمز مدیر را تنظیم کنید." });
+      const { password } = await readJson(request, 4096);
+      if (typeof password !== "string") return send(response, 400, { error: "رمز عبور نامعتبر است." });
+      const actual = scryptSync(password, authConfig.salt, 64);
+      const expected = Buffer.from(authConfig.hash, "hex");
+      if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
+        return send(response, 401, { error: "رمز عبور صحیح نیست." });
+      }
+      createSession(response);
+      return send(response, 200, { success: true });
+    }
+
+    if (request.method === "POST" && url.pathname === "/auth/logout") {
+      response.setHeader("Set-Cookie", `${cookieName}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`);
+      return send(response, 200, { success: true });
+    }
+
+    if (!hasSession(request)) return send(response, 401, { error: "برای ادامه وارد پنل شوید." });
+
     if (request.method === "GET" && url.pathname === "/products") {
       const products = JSON.parse(await readFile(productsPath, "utf8"));
       return send(response, 200, products);
     }
+
     if (request.method === "PUT" && url.pathname === "/products") {
       const products = await readJson(request);
       if (!Array.isArray(products)) return send(response, 400, { error: "محصولات باید آرایه باشند." });
@@ -71,6 +144,7 @@ const server = createServer(async (request, response) => {
       await writeFile(productsPath, `${JSON.stringify(products, null, 2)}\n`);
       return send(response, 200, { success: true, count: products.length });
     }
+
     if (request.method === "POST" && url.pathname === "/upload") {
       const { name, mimeType, base64 } = await readJson(request, 12 * 1024 * 1024);
       const extension = allowedTypes.get(mimeType);
@@ -83,6 +157,7 @@ const server = createServer(async (request, response) => {
       await writeFile(path.join(uploadsPath, filename), image, { flag: "wx" });
       return send(response, 201, { image: `/uploads/products/${filename}` });
     }
+
     return send(response, 404, { error: "Not found" });
   } catch (error) {
     return send(response, 500, { error: error instanceof Error ? error.message : "خطای داخلی" });
