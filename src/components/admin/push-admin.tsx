@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 
 const API_URL = "http://localhost:3031";
 
@@ -12,7 +12,7 @@ export default function PushAdmin({ onBack }: { onBack: () => void }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const response = await fetch(`${API_URL}/push/stats`, { credentials: "include" });
       if (!response.ok) throw new Error("آمار اشتراک‌ها دریافت نشد.");
@@ -21,9 +21,9 @@ export default function PushAdmin({ onBack }: { onBack: () => void }) {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "خطا در دریافت آمار");
     }
-  };
+  }, []);
 
-  useEffect(() => { void loadStats(); }, []);
+  useEffect(() => { void loadStats(); }, [loadStats]);
 
   const send = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
