@@ -1,5 +1,6 @@
 import productData from "@/data/products.json";
 import categoryData from "@/data/categories.json";
+import brandData from "@/data/brands.json";
 
 export type Category = {
   slug: string;
@@ -8,6 +9,8 @@ export type Category = {
   icon: string;
   count: string;
 };
+
+export type Brand = { slug: string; name: string; description: string; };
 
 export type Product = {
   id: string;
@@ -32,6 +35,7 @@ export type Product = {
 };
 
 export const categories: Category[] = categoryData as Category[];
+export const brands: Brand[] = brandData as Brand[];
 
 export const products: Product[] = (productData as Product[]).filter(
   (product) => product.status === "published",

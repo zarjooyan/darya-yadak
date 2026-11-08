@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const productsPath = path.join(root, "src/data/products.json");
 const categoriesPath = path.join(root, "src/data/categories.json");
+const brandsPath = path.join(root, "src/data/brands.json");
 const uploadsPath = path.join(root, "public/uploads/products");
 const authPath = path.join(root, ".admin-auth.json");
 const cookieName = "darya_part_admin";
@@ -121,6 +122,32 @@ const server = createServer(async (request, response) => {
     }
 
     if (!hasSession(request)) return send(response, 401, { error: "برای ادامه وارد پنل شوید." });
+
+    if (request.method === "GET" && url.pathname === "/brands") {
+      const brands = JSON.parse(await readFile(brandsPath, "utf8"));
+      return send(response, 200, brands);
+    }
+
+    if (request.method === "PUT" && url.pathname === "/brands") {
+      const brands = await readJson(request);
+      if (!Array.isArray(brands)) return send(response, 400, { error: "برندها باید آرایه باشند." });
+      const slugs = new Set();
+      const names = new Set();
+      for (const brand of brands) {
+        if (!brand || typeof brand.slug !== "string" || typeof brand.name !== "string" || !brand.slug.trim() || !brand.name.trim()) {
+          return send(response, 400, { error: "نام و Slug برند الزامی است." });
+        }
+        if (slugs.has(brand.slug) || names.has(brand.name)) return send(response, 400, { error: "Slug یا نام برند تکراری است." });
+        slugs.add(brand.slug);
+        names.add(brand.name);
+      }
+      const products = JSON.parse(await readFile(productsPath, "utf8"));
+      if (products.some((product) => product.brand && !names.has(product.brand))) {
+        return send(response, 409, { error: "ابتدا برند محصولات وابسته را به‌روزرسانی کنید." });
+      }
+      await writeFile(brandsPath, `${JSON.stringify(brands, null, 2)}\n`);
+      return send(response, 200, { success: true, count: brands.length });
+    }
 
     if (request.method === "GET" && url.pathname === "/categories") {
       const categories = JSON.parse(await readFile(categoriesPath, "utf8"));

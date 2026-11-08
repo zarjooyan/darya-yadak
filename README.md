@@ -32,6 +32,7 @@ Next.js با `output: "export"` فایل‌های استاتیک را در پو�
 - صفحه اصلی واکنش‌گرا، جستجوی نمونه و انتخاب خودرو
 - دسته‌بندی‌ها و صفحات استاتیک محصولات با URL خوانا
 - پنل مدیریت محلی با نقش Admin
+- مدیریت دسته‌بندی‌ها و برندها
 - ذخیره مستقیم محصولات و آپلود تصاویر روی فایل‌های پروژه
 - عنوان و توضیحات متا، canonical، Open Graph و metadata زبان فارسی
 - Schema برای Organization، WebSite/SearchAction، Product، CollectionPage و FAQ

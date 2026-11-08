@@ -1,0 +1,42 @@
+[
+  {
+    "name": "ایساکو",
+    "slug": "isaco",
+    "description": "برند قطعات خودرو"
+  },
+  {
+    "name": "NGK",
+    "slug": "ngk",
+    "description": "شمع و قطعات جرقه‌زنی"
+  },
+  {
+    "name": "تکستار",
+    "slug": "textar",
+    "description": "قطعات سیستم ترمز"
+  },
+  {
+    "name": "مدرن",
+    "slug": "modern",
+    "description": "قطعات روشنایی و بدنه"
+  },
+  {
+    "name": "سپاهان",
+    "slug": "sepahan",
+    "description": "باتری خودرو"
+  },
+  {
+    "name": "PowerGrip",
+    "slug": "powergrip",
+    "description": "تسمه و قطعات انتقال نیرو"
+  },
+  {
+    "name": "ایمن‌تک",
+    "slug": "imantech",
+    "description": "قطعات جانبی خودرو"
+  },
+  {
+    "name": "عظام",
+    "slug": "ezam",
+    "description": "قطعات خودرو"
+  }
+]

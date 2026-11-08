@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { categories, getProductImageSrc } from "@/lib/catalog";
+import { brands, categories, getProductImageSrc } from "@/lib/catalog";
 import CategoryAdmin from "@/components/admin/category-admin";
+import BrandAdmin from "@/components/admin/brand-admin";
 
 const API_URL = "http://localhost:3031";
 const LEGACY_STORAGE_KEY = "darya-part-admin-products";
@@ -60,6 +61,7 @@ export default function ProductAdmin() {
   const [active, setActive] = useState<AdminProduct | null>(null);
   const [query, setQuery] = useState("");
   const [managingCategories, setManagingCategories] = useState(false);
+  const [managingBrands, setManagingBrands] = useState(false);
 
   const loadProducts = async () => {
     const response = await fetch(`${API_URL}/products`, { credentials: "include" });
@@ -228,6 +230,10 @@ export default function ProductAdmin() {
     }
   };
 
+  if (managingBrands && authenticated) {
+    return <BrandAdmin onBack={() => setManagingBrands(false)} />;
+  }
+
   if (managingCategories && authenticated) {
     return <CategoryAdmin onBack={() => setManagingCategories(false)} />;
   }
@@ -265,6 +271,7 @@ export default function ProductAdmin() {
         <div><span className="admin-eyebrow">DARYA PART · ADMIN</span><h1>مدیریت محصولات</h1></div>
         <div className="admin-actions">
           <button className="admin-quiet" onClick={() => setManagingCategories(true)}>مدیریت دسته‌بندی‌ها</button>
+          <button className="admin-quiet" onClick={() => setManagingBrands(true)}>مدیریت برندها</button>
           <button onClick={exportJson}>خروجی JSON</button>
           <label className="admin-button">ورود JSON<input type="file" accept="application/json" hidden onChange={(e) => importJson(e.target.files?.[0])} /></label>
           <button className="admin-quiet" onClick={logout}>خروج</button>
@@ -281,7 +288,9 @@ export default function ProductAdmin() {
             {([
               ["title", "نام محصول"], ["slug", "آدرس انگلیسی (slug)"], ["brand", "برند"], ["sku", "شناسه کالا"], ["oemCode", "کد OEM"], ["fitment", "خودروهای سازگار"], ["image", "آدرس تصویر"], ["shortDescription", "توضیح کوتاه"], ["seoTitle", "عنوان SEO"], ["seoDescription", "توضیحات Meta"],
             ] as const).map(([key, label]) => (
-              <label key={key}>{label}<input value={active[key]} onChange={(e) => setActive({ ...active, [key]: e.target.value })} /></label>
+              <label key={key}>{label}<input list={key === "brand" ? "admin-brand-options" : undefined} value={active[key]} onChange={(e) => setActive({ ...active, [key]: e.target.value })} />
+                {key === "brand" && <datalist id="admin-brand-options">{brands.map((brand) => <option key={brand.slug} value={brand.name} />)}</datalist>}
+              </label>
             ))}
             <label>دسته‌بندی<select value={active.category} onChange={(e) => setActive({ ...active, category: e.target.value })}>{categories.map((c) => <option key={c.slug} value={c.slug}>{c.title}</option>)}</select></label>
             <label>وضعیت<select value={active.status} onChange={(e) => setActive({ ...active, status: e.target.value as AdminProduct["status"] })}><option value="draft">پیش‌نویس</option><option value="published">منتشرشده</option></select></label>
