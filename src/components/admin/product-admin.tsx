@@ -1,20 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import {
-  ClassicEditor,
-  Essentials,
-  Paragraph,
-  Bold,
-  Italic,
-  Heading,
-  Link,
-  List,
-  Table,
-  TableToolbar,
-} from "ckeditor5";
-import "ckeditor5/ckeditor5.css";
+import { useEffect, useMemo, useState } from "react";
 import { products as initialProducts, categories } from "@/lib/catalog";
 
 type AdminProduct = {
@@ -53,13 +39,6 @@ const emptyProduct = (): AdminProduct => ({
   status: "draft",
 });
 
-const editorConfig = {
-  licenseKey: process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY || "",
-  language: "fa",
-  plugins: [Essentials, Paragraph, Bold, Italic, Heading, Link, List, Table, TableToolbar],
-  toolbar: ["undo", "redo", "|", "heading", "|", "bold", "italic", "|", "link", "|", "bulletedList", "numberedList", "|", "insertTable"],
-  table: { contentToolbar: ["tableColumn", "tableRow", "mergeTableCells"] },
-};
 
 export default function ProductAdmin() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -184,19 +163,7 @@ export default function ProductAdmin() {
             <label>وضعیت<select value={active.status} onChange={(e) => setActive({ ...active, status: e.target.value as AdminProduct["status"] })}><option value="draft">پیش‌نویس</option><option value="published">منتشرشده</option></select></label>
           </div>
           <label className="admin-editor-label">محتوای کامل محصول</label>
-          {!process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY && <p className="admin-license-note">برای فعال‌سازی CKEditor، کلید لایسنس را در NEXT_PUBLIC_CKEDITOR_LICENSE_KEY در فایل .env.local قرار بده. مجوز GPL فقط در صورت سازگاری مجوز کل پروژه قابل استفاده است.</p>}
-          {process.env.NEXT_PUBLIC_CKEDITOR_LICENSE_KEY ? (
-            <div className="admin-ckeditor" dir="rtl">
-              <CKEditor
-                editor={ClassicEditor}
-                config={editorConfig}
-                data={active.content}
-                onChange={(_, editor) => setActive({ ...active, content: editor.getData() })}
-              />
-            </div>
-          ) : (
-            <p className="admin-license-note">برای فعال‌سازی CKEditor، کلید لایسنس معتبر را در متغیر NEXT_PUBLIC_CKEDITOR_LICENSE_KEY داخل فایل .env.local قرار بده. برای پروژه خصوصی، از لایسنس تجاری استفاده کن؛ مقدار GPL فقط برای پروژه‌ای با مجوز سازگار GPL مناسب است.</p>
-          )}
+          <textarea className="admin-content-textarea" value={active.content} onChange={(e) => setActive({ ...active, content: e.target.value })} rows={12} placeholder="محتوای کامل محصول را وارد کنید..." />
           <div className="admin-form-footer"><button onClick={save}>ذخیره محصول</button><button className="admin-quiet" onClick={() => setActive(null)}>انصراف</button></div>
         </section>
       ) : (
