@@ -15,6 +15,7 @@ const emptyCategory = (): Category => ({
 export default function CategoryAdmin({ onBack }: { onBack: () => void }) {
   const [items, setItems] = useState<Category[]>([]);
   const [active, setActive] = useState<Category | null>(null);
+  const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,14 +52,17 @@ export default function CategoryAdmin({ onBack }: { onBack: () => void }) {
       alert("نام و Slug دسته‌بندی الزامی است.");
       return;
     }
-    if (items.some((item) => item.slug !== active.slug && item.slug === active.slug)) {
+    if (items.some((item) => item.slug === active.slug && item.slug !== editingSlug)) {
       alert("این Slug قبلاً استفاده شده است.");
       return;
     }
-    const next = items.some((item) => item.slug === active.slug)
-      ? items.map((item) => item.slug === active.slug ? active : item)
+    const next = editingSlug
+      ? items.map((item) => item.slug === editingSlug ? active : item)
       : [...items, active];
-    if (await persist(next)) setActive(null);
+    if (await persist(next)) {
+      setActive(null);
+      setEditingSlug(null);
+    }
   };
 
   return (
@@ -69,7 +73,7 @@ export default function CategoryAdmin({ onBack }: { onBack: () => void }) {
       </header>
       {active ? (
         <section className="admin-editor">
-          <div className="admin-form-heading"><h2>{items.some((item) => item.slug === active.slug) ? "ویرایش دسته‌بندی" : "دسته‌بندی جدید"}</h2><button className="admin-quiet" onClick={() => setActive(null)}>بستن</button></div>
+          <div className="admin-form-heading"><h2>{items.some((item) => item.slug === active.slug) ? "ویرایش دسته‌بندی" : "دسته‌بندی جدید"}</h2><button className="admin-quiet" onClick={() => { setActive(null); setEditingSlug(null); }}>بستن</button></div>
           <div className="admin-fields">
             <label>نام دسته‌بندی<input value={active.title} onChange={(e) => setActive({ ...active, title: e.target.value })} /></label>
             <label>Slug<input value={active.slug} onChange={(e) => setActive({ ...active, slug: e.target.value })} /></label>
@@ -81,11 +85,11 @@ export default function CategoryAdmin({ onBack }: { onBack: () => void }) {
         </section>
       ) : (
         <section className="admin-product-list">
-          <div className="admin-list-heading"><h2>دسته‌بندی‌ها ({items.length})</h2><button onClick={() => setActive(emptyCategory())}>＋ دسته‌بندی جدید</button></div>
+          <div className="admin-list-heading"><h2>دسته‌بندی‌ها ({items.length})</h2><button onClick={() => { setEditingSlug(null); setActive(emptyCategory()); }}>＋ دسته‌بندی جدید</button></div>
           {loading ? <p>در حال دریافت اطلاعات...</p> : items.map((item) => (
             <article className="admin-product-row" key={item.slug}>
               <div><strong>{item.icon} {item.title}</strong><small>{item.slug} · {item.count}</small></div>
-              <button className="admin-quiet" onClick={() => setActive(item)}>ویرایش</button>
+              <button className="admin-quiet" onClick={() => { setEditingSlug(item.slug); setActive(item); }}>ویرایش</button>
               <button className="admin-danger" onClick={() => { if (confirm("این دسته‌بندی حذف شود؟")) void persist(items.filter((category) => category.slug !== item.slug)); }}>حذف</button>
             </article>
           ))}
