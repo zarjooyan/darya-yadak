@@ -9,8 +9,8 @@ self.addEventListener("push", (event) => {
   const title = data.title || "دریا پارت";
   const options = {
     body: data.body || "پیام جدیدی از دریا پارت دارید.",
-    icon: data.icon || "/darya-part-icon.svg",
-    badge: data.badge || "/favicon.svg",
+    icon: new URL(data.icon || "darya-part-icon.svg", self.registration.scope).href,
+    badge: new URL(data.badge || "favicon.svg", self.registration.scope).href,
     data: { url: data.url || "/" },
     dir: "rtl",
     lang: "fa",
@@ -22,7 +22,7 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = new URL(event.notification.data?.url || "/", self.location.origin).href;
+  const target = new URL(event.notification.data?.url || "./", self.registration.scope).href;
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const client of windows) {
